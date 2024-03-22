@@ -14,17 +14,19 @@ public class Player : Sprite
   private float lastFired;
 
   // State
-  private int health = 10;
+  public float Health { get; set; }
 
   // Constants
   public const float BASE_SPEED = 150f;
   public const float FIRE_RATE = 1f;
+  public const float MAX_HEALTH = 10f;
 
   public Player(Vector2 startPosition)
     : base(startPosition)
   {
     projectiles = new List<Projectile>();
     lastFired = 0;
+    Health = MAX_HEALTH;
   }
 
   public void Update(GameTime gameTime, List<Enemy> enemies)
@@ -130,14 +132,6 @@ public class Player : Sprite
   public void Draw(SpriteFont font)
   {
     base.Draw();
-
-    Globals.SpriteBatch.DrawString(
-      font,
-      "Position: " + position.ToString() + " " + spriteTexture.Width,
-      new Vector2(position.X + 15, position.Y - 15),
-      Color.White
-    );
-
     foreach (var projectile in projectiles)
     {
       projectile.Draw();

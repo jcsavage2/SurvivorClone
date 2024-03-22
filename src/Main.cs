@@ -12,6 +12,7 @@ public class Main : Game
   private SpriteFont font;
   private readonly Map map;
   private readonly Camera camera;
+  private readonly UserInterface userInterface;
 
   public Main()
   {
@@ -20,6 +21,7 @@ public class Main : Game
     // Load user view
     map = new Map(50);
     camera = new Camera();
+    userInterface = new UserInterface();
 
     // Load entities
     player = new Player(new Vector2(0, 0));
@@ -45,9 +47,10 @@ public class Main : Game
 
     map.LoadContent();
 
-    font = Content.Load<SpriteFont>("Font/File");
+    //font = Content.Load<SpriteFont>("Font/File");
     player.LoadContent("yellow_character_small");
     player.SetBounds(map.mapDimensionsPixels);
+    userInterface.LoadContent("Font/File");
 
     foreach (var enemy in enemies)
     {
@@ -62,6 +65,7 @@ public class Main : Game
 
     player.Update(gameTime, enemies);
     camera.Follow(player, map);
+    userInterface.Update(player);
 
     foreach (var enemy in enemies)
     {
@@ -77,11 +81,16 @@ public class Main : Game
 
     Globals.SpriteBatch.Begin(transformMatrix: camera.translation);
     map.Draw();
-    player.Draw(font);
+    player.Draw();
     foreach (var enemy in enemies)
     {
       enemy.Draw();
     }
+    Globals.SpriteBatch.End();
+
+    // Draw without camera translation
+    Globals.SpriteBatch.Begin();
+    userInterface.Draw(player);
     Globals.SpriteBatch.End();
 
     base.Draw(gameTime);
