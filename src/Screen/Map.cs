@@ -30,7 +30,7 @@ public class Map
           val = "1";
         }
         tiles[x, y] = new Sprite(new Vector2(x * Globals.TILE_SIZE, y * Globals.TILE_SIZE));
-        tiles[x, y].LoadContent("grass_tile" + val);
+        tiles[x, y].LoadContent("Sprites/grass_tile" + val);
       }
     }
   }

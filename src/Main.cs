@@ -24,7 +24,7 @@ public class Main : Game
     userInterface = new UserInterface();
 
     // Load entities
-    player = new Player(new Vector2(0, 0));
+    player = new Player(new Vector2(500, 500), 2, 11, new Point(64, 64));
     enemies = new List<Enemy>
     {
       new Enemy(new Vector2(Globals.WindowSize.X / 3, Globals.WindowSize.Y / 3)),
@@ -47,14 +47,13 @@ public class Main : Game
 
     map.LoadContent();
 
-    //font = Content.Load<SpriteFont>("Font/File");
-    player.LoadContent("yellow_character_small");
+    player.LoadContent("Sprites/player2");
     player.SetBounds(map.mapDimensionsPixels);
     userInterface.LoadContent("Font/File");
 
     foreach (var enemy in enemies)
     {
-      enemy.LoadContent("enemy");
+      enemy.LoadContent("Sprites/enemy");
     }
   }
 
@@ -62,10 +61,11 @@ public class Main : Game
   {
     if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
       Exit();
+    InputManager.Update();
 
     player.Update(gameTime, enemies);
     camera.Follow(player, map);
-    userInterface.Update(player);
+    userInterface.Update(gameTime, player);
 
     foreach (var enemy in enemies)
     {

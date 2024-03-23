@@ -10,34 +10,32 @@ public class ProgressBar
   private readonly Vector2 origin;
   private readonly SpriteFont font;
   private float progress;
-  private readonly RectangleSprite backgroundRectangle;
-  private readonly RectangleSprite fillRectangle;
+  private readonly Sprite background;
+  private readonly Sprite fill;
 
-  public ProgressBar(SpriteFont _font, Color _backgroundColor, Color _fillColor, Vector2 _origin, Vector2 size, float _progress = 1)
+  public ProgressBar(SpriteFont _font, Vector2 _origin, float _progress = 1)
   {
     progress = MathHelper.Clamp(_progress, 0, 1);
     font = _font;
     origin = _origin;
 
-    _backgroundColor = Color.Lerp(_backgroundColor, Color.Black, 0.1f);
-    _fillColor = Color.Lerp(_fillColor, Color.Black, 0.1f);
-    backgroundRectangle = new RectangleSprite(origin, size, _backgroundColor, Color.Black);
-    fillRectangle = new RectangleSprite(origin, new Vector2(size.X * progress, size.Y), _fillColor, Color.Black);
-    backgroundRectangle.LoadContent();
-    fillRectangle.LoadContent();
+    background = new Sprite(origin);
+    fill = new Sprite(origin);
+    background.LoadContent("UI/back");
+    fill.LoadContent("UI/front");
   }
 
   public void UpdateProgress(float _progress)
   {
     progress = MathHelper.Clamp(_progress, 0, 1);
-    fillRectangle.UpdateDimensions(new Vector2(backgroundRectangle.rectangle.Width * progress, backgroundRectangle.rectangle.Height));
+    fill.UpdateDimensions(new Vector2(background.rectangle.Width * progress, background.rectangle.Height));
   }
 
   public void Draw()
   {
     int displayPercentage = (int)(progress * 100);
-    backgroundRectangle.Draw();
-    fillRectangle.Draw();
-    Globals.SpriteBatch.DrawString(font, displayPercentage + " %", new Vector2(origin.X + 8, origin.Y + 2), Color.White);
+    background.Draw();
+    fill.Draw();
+    Globals.SpriteBatch.DrawString(font, displayPercentage + " %", new Vector2(origin.X - 20, origin.Y - 8), Color.White);
   }
 }
