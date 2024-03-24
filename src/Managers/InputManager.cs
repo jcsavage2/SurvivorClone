@@ -19,6 +19,11 @@ public static class InputManager
     CurrentMouseState = Mouse.GetState();
   }
 
+  public static bool IsKeyPressed(Keys key)
+  {
+    return CurrentKeyboardState.IsKeyDown(key) && !PreviousKeyboardState.IsKeyDown(key);
+  }
+
   public static Vector2 GetMousePosition()
   {
     return new Vector2(CurrentMouseState.X, CurrentMouseState.Y);

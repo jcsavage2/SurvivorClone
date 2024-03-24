@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using static SurvivorClone.Globals;
+using static SurvivorClone.Player;
 
 namespace SurvivorClone;
 

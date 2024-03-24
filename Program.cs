@@ -1,2 +1,2 @@
-﻿using var game = new SurvivorClone.Main();
+﻿using var game = new SurvivorClone.GameManager(true);
 game.Run();

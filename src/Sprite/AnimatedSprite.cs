@@ -19,6 +19,8 @@ public class AnimatedSprite : Sprite
   private readonly float frameDelay;
   private float frameDelayCounter;
 
+  private const int PADDING = 1;
+
   public AnimatedSprite(Vector2 position, int _totalStates, int _totalFrames, Point _tileSize, float _frameDelay = .1f)
     : base(position)
   {
@@ -34,12 +36,12 @@ public class AnimatedSprite : Sprite
 
   public override void LoadContent(string texturePath)
   {
-    spriteTexture = Globals.Content.Load<Texture2D>(texturePath);
+    spriteTexture = RenderManager.Content.Load<Texture2D>(texturePath);
     center = new Vector2(tileSize.X / 2, tileSize.Y / 2);
     rectangle = new Rectangle(0, 0, tileSize.X, tileSize.Y);
   }
 
-  public void Update(GameTime gameTime)
+  public virtual void Update(GameTime gameTime)
   {
     if (!isActive)
     {
@@ -82,17 +84,25 @@ public class AnimatedSprite : Sprite
     frameDelayCounter = 0;
   }
 
+  public override void SetBounds(Point mapSizePixels)
+  {
+    minPos = new Vector2(ORIGIN_OFFSET, ORIGIN_OFFSET);
+    maxPos = new Vector2(mapSizePixels.X - tileSize.X, mapSizePixels.Y - tileSize.Y);
+  }
+
+  // Sprite animated tilesheets have a pixel border and padding between tiles
+  // Alongside this we have to offset the origin rectangle we want to draw from the tile sheet
+  private int getTilePosition(int index, int tileSize)
+  {
+    return PADDING * (index * 2 + 2) + index * tileSize;
+  }
+
   public override void Draw()
   {
-    Globals.SpriteBatch.Draw(
+    RenderManager.SpriteBatch.Draw(
       spriteTexture,
-      position,
-      new Rectangle(
-        (5 * (currentFrame * 2 + 2)) + currentFrame * tileSize.X,
-        (5 * (currentState * 2 + 2)) + currentState * tileSize.Y,
-        tileSize.X,
-        tileSize.Y
-      ),
+      drawPosition,
+      new Rectangle(getTilePosition(currentFrame, tileSize.X), getTilePosition(currentState, tileSize.Y), tileSize.X, tileSize.Y),
       Color.White,
       0,
       center,

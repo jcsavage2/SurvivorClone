@@ -7,17 +7,19 @@ public class Map
 {
   public Point mapDimensionsPixels { get; set; }
   public Point mapDimensionsTiles { get; set; }
+  public int tileSize { get; set; }
   private readonly Sprite[,] tiles;
 
-  public Map(int _size)
+  public Map(int _mapSize, int _tileSize)
   {
-    tiles = new Sprite[_size, _size];
-    mapDimensionsTiles = new Point(_size, _size);
+    tiles = new Sprite[_mapSize, _mapSize];
+    mapDimensionsTiles = new Point(_mapSize, _mapSize);
+    tileSize = _tileSize;
   }
 
   public void LoadContent()
   {
-    mapDimensionsPixels = new Point(mapDimensionsTiles.X * Globals.TILE_SIZE, mapDimensionsTiles.Y * Globals.TILE_SIZE);
+    mapDimensionsPixels = new Point(mapDimensionsTiles.X * tileSize, mapDimensionsTiles.Y * tileSize);
 
     Random rand = new Random();
     for (int x = 0; x < mapDimensionsTiles.X; x++)
@@ -29,7 +31,7 @@ public class Map
         {
           val = "1";
         }
-        tiles[x, y] = new Sprite(new Vector2(x * Globals.TILE_SIZE, y * Globals.TILE_SIZE));
+        tiles[x, y] = new Sprite(new Vector2(x * tileSize, y * tileSize));
         tiles[x, y].LoadContent("Sprites/grass_tile" + val);
       }
     }
