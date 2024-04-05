@@ -9,24 +9,24 @@ namespace SurvivorClone
 
     public UserInterface() { }
 
-    public void LoadContent()
+    public void LoadContent(RenderManager _renderManager)
     {
-      healthBar = new ProgressBar(new Vector2(0, 0), .01f, .01f);
-      timer = new Timer(new Vector2(RenderManager.RenderTarget.Width, 0), .01f, -.2f);
+      healthBar = new ProgressBar(_renderManager, new Vector2(0, 0), .01f, .01f);
+      timer = new Timer(_renderManager, new Vector2(_renderManager.GetRenderSize().X, 0), .01f, -.2f);
     }
 
-    public void Update(GameTime gameTime, Player player)
+    public void Update(RenderManager _renderManager, GameTime gameTime, Player player)
     {
       // Update positions from render target window size
-      float percentRemainingHealth = player.Health / Player.MAX_HEALTH;
-      healthBar.Update(percentRemainingHealth);
-      timer.Update(gameTime);
+      float percentRemainingHealth = player.GetHealth() / Player.MAX_HEALTH;
+      healthBar.Update(_renderManager, percentRemainingHealth);
+      timer.Update(_renderManager, gameTime);
     }
 
-    public void Draw(Player player)
+    public void Draw(RenderManager _renderManager, Player player)
     {
-      healthBar.Draw();
-      timer.Draw();
+      healthBar.Draw(_renderManager);
+      timer.Draw(_renderManager);
     }
   }
 }

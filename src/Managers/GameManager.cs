@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -8,6 +7,8 @@ namespace SurvivorClone;
 
 public class GameManager : Game
 {
+  private readonly RenderManager renderManager;
+
   private readonly Player player;
   private readonly Map map;
   private readonly Camera camera;
@@ -20,15 +21,15 @@ public class GameManager : Game
     Logger.InitLog(debug);
     try
     {
-      RenderManager.Create(Content, new GraphicsDeviceManager(this), new Point(960, 540), Window);
+      renderManager = new RenderManager(Content, new GraphicsDeviceManager(this), new Point(960, 540), Window);
 
       // Load user view
-      map = new Map(50, 32);
+      map = new Map(25, 64);
       camera = new Camera();
       userInterface = new UserInterface();
 
       // Load entities
-      player = new Player(new Vector2(200, 200), 2, 11, new Point(64, 64));
+      player = new Player(renderManager, new Vector2(200, 200), 2, 11, new Point(64, 64));
     }
     catch (Exception ex)
     {
@@ -40,12 +41,11 @@ public class GameManager : Game
   {
     try
     {
-      RenderManager.LoadContent(new SpriteBatch(GraphicsDevice));
-      userInterface.LoadContent();
-      map.LoadContent();
+      renderManager.LoadContent(new SpriteBatch(GraphicsDevice));
+      userInterface.LoadContent(renderManager);
+      map.LoadContent(renderManager);
 
-      player.LoadContent("Sprites/player");
-      player.SetBounds(map.mapDimensionsPixels);
+      player.LoadContent(renderManager, "Sprites/player");
     }
     catch (Exception ex)
     {
@@ -59,11 +59,11 @@ public class GameManager : Game
     {
       if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
         Exit();
-      RenderManager.Update();
+      renderManager.UpdateWindowSize();
 
-      player.Update(gameTime);
-      camera.Update(player, map);
-      userInterface.Update(gameTime, player);
+      player.Update(gameTime, map);
+      camera.Update(renderManager, player, map);
+      userInterface.Update(renderManager, gameTime, player);
 
       base.Update(gameTime);
     }
@@ -77,19 +77,20 @@ public class GameManager : Game
   {
     try
     {
-      RenderManager.Activate();
-
-      RenderManager.SpriteBatch.Begin(transformMatrix: camera.translation);
-      map.Draw();
-      player.Draw();
-      RenderManager.SpriteBatch.End();
-
-      // Draw UI without camera translation
-      RenderManager.SpriteBatch.Begin();
-      userInterface.Draw(player);
-      RenderManager.SpriteBatch.End();
-
-      RenderManager.Draw();
+      // First callback draws using camera translation
+      // Second callback draws without camera translation
+      renderManager.Draw(
+        camera,
+        () =>
+        {
+          map.Draw(renderManager);
+          player.DrawWithScale(renderManager);
+        },
+        () =>
+        {
+          userInterface.Draw(renderManager, player);
+        }
+      );
 
       base.Draw(gameTime);
     }

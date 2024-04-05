@@ -6,96 +6,125 @@ using Microsoft.Xna.Framework.Input;
 
 namespace SurvivorClone;
 
-public static class RenderManager
+public class RenderManager
 {
   // Screen properties for scaling rendering
-  public static Point WindowSize { get; set; }
-  public static Point RenderSize { get; set; }
-  private static Rectangle destinationRectangle;
+  private Point windowSize { get; set; }
+  private Point renderSize { get; set; }
+  private Rectangle destinationRectangle;
 
   // Screen management
-  public static RenderTarget2D RenderTarget { get; set; }
-  public static ContentManager Content { get; set; }
-  public static GraphicsDeviceManager Graphics { get; set; }
-  public static SpriteBatch SpriteBatch { get; set; }
-  public static GameWindow Window { get; set; }
+  private float ratioX;
+  private float ratioY;
+  private RenderTarget2D renderTarget { get; set; }
+  private ContentManager content { get; set; }
+  private GraphicsDeviceManager graphics { get; set; }
+  private SpriteBatch spriteBatch { get; set; }
+  private GameWindow window { get; set; }
 
   // Fonts
-  public static SpriteFont Font { get; set; }
+  private SpriteFont font { get; set; }
 
-  public static void Create(ContentManager content, GraphicsDeviceManager graphicsManager, Point renderSize, GameWindow window)
+  public RenderManager(ContentManager _content, GraphicsDeviceManager _graphicsManager, Point _renderSize, GameWindow _window)
   {
-    Content = content;
-    Graphics = graphicsManager;
+    content = _content;
+    graphics = _graphicsManager;
 
-    WindowSize = renderSize;
+    windowSize = _renderSize;
 
-    Content.RootDirectory = "Content";
-    RenderSize = renderSize;
-    Window = window;
+    content.RootDirectory = "Content";
+    renderSize = _renderSize;
+    window = _window;
   }
 
-  public static void LoadContent(SpriteBatch spriteBatch, string _fontPath = "Font/File")
+  public void LoadContent(SpriteBatch _spriteBatch, string _fontPath = "Font/File")
   {
-    SpriteBatch = spriteBatch;
-    RenderTarget = new RenderTarget2D(Graphics.GraphicsDevice, RenderSize.X, RenderSize.Y);
-    Font = Content.Load<SpriteFont>(_fontPath);
-    ChangeWindowSize(WindowSize);
+    spriteBatch = _spriteBatch;
+    renderTarget = new RenderTarget2D(graphics.GraphicsDevice, renderSize.X, renderSize.Y);
+    font = content.Load<SpriteFont>(_fontPath);
+    changeWindowSize(windowSize);
   }
 
-  public static void ChangeWindowSize(Point size)
+  private void changeWindowSize(Point size)
   {
-    WindowSize = size;
-    Graphics.PreferredBackBufferWidth = size.X;
-    Graphics.PreferredBackBufferHeight = size.Y;
-    Graphics.ApplyChanges();
-    SetDestinationRectangle();
+    windowSize = size;
+    graphics.PreferredBackBufferWidth = size.X;
+    graphics.PreferredBackBufferHeight = size.Y;
+    graphics.ApplyChanges();
+    setDestinationRectangle();
   }
 
-  public static void SetDestinationRectangle()
+  private void setDestinationRectangle()
   {
-    float scaleX = (float)WindowSize.X / RenderTarget.Width;
-    float scaleY = (float)WindowSize.Y / RenderTarget.Height;
-    float scale = Math.Min(scaleX, scaleY);
+    ratioX = (float)windowSize.X / renderSize.X;
+    ratioY = (float)windowSize.Y / renderSize.Y;
+    float scale = Math.Min(ratioX, ratioY);
 
-    int newWidth = (int)(RenderTarget.Width * scale);
-    int newHeight = (int)(RenderTarget.Height * scale);
+    int newWidth = (int)(renderTarget.Width * scale);
+    int newHeight = (int)(renderTarget.Height * scale);
 
-    int posX = (WindowSize.X - newWidth) / 2;
-    int posY = (WindowSize.Y - newHeight) / 2;
+    int posX = (windowSize.X - newWidth) / 2;
+    int posY = (windowSize.Y - newHeight) / 2;
 
     destinationRectangle = new Rectangle(posX, posY, newWidth, newHeight);
   }
 
-  public static void Update()
+  public void UpdateWindowSize()
   {
     InputManager.Update();
     if (InputManager.CurrentKeyboardState.IsKeyDown(Keys.F1))
     {
-      ChangeWindowSize(new Point(960, 540));
+      changeWindowSize(new Point(960, 540));
     }
     if (InputManager.CurrentKeyboardState.IsKeyDown(Keys.F2))
     {
-      ChangeWindowSize(new Point(1280, 720));
+      changeWindowSize(new Point(1280, 720));
     }
     if (InputManager.CurrentKeyboardState.IsKeyDown(Keys.F3))
     {
-      ChangeWindowSize(new Point(1920, 1080));
+      changeWindowSize(new Point(1920, 1080));
     }
   }
 
-  public static void Activate()
+  public void Draw(Camera _camera, Action _drawWithTranslation, Action _drawWithoutTranslation)
   {
-    Graphics.GraphicsDevice.SetRenderTarget(RenderTarget);
-    Graphics.GraphicsDevice.Clear(Color.Gray);
+    graphics.GraphicsDevice.SetRenderTarget(renderTarget);
+    graphics.GraphicsDevice.Clear(Color.Gray);
+
+    // Draw with camera translation(offset) to render target
+    spriteBatch.Begin(transformMatrix: _camera.translation);
+    _drawWithTranslation();
+    spriteBatch.End();
+
+    // Draw UI without camera translation to render target
+    spriteBatch.Begin();
+    _drawWithoutTranslation();
+    spriteBatch.End();
+
+    // Draw the render target to the screen
+    graphics.GraphicsDevice.SetRenderTarget(null);
+    graphics.GraphicsDevice.Clear(Color.Gray);
+    spriteBatch.Begin();
+    spriteBatch.Draw(renderTarget, destinationRectangle, Color.White);
+    spriteBatch.End();
   }
 
-  public static void Draw()
-  {
-    Graphics.GraphicsDevice.SetRenderTarget(null);
-    Graphics.GraphicsDevice.Clear(Color.Gray);
-    SpriteBatch.Begin();
-    SpriteBatch.Draw(RenderTarget, destinationRectangle, Color.White);
-    SpriteBatch.End();
-  }
+  // Getters
+  public float GetRatioX() => ratioX;
+
+  public float GetRatioY() => ratioY;
+
+  public Point GetWindowSize() => windowSize;
+
+  public Point GetRenderSize() => renderSize;
+
+  public SpriteFont GetFont() => font;
+
+  public GraphicsDeviceManager GetGraphics() => graphics;
+
+  public GameWindow GetWindow() => window;
+
+  public ContentManager GetContent() => content;
+
+  public SpriteBatch GetSpriteBatch() => spriteBatch;
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -21,8 +20,8 @@ public class AnimatedSprite : Sprite
 
   private const int PADDING = 1;
 
-  public AnimatedSprite(Vector2 position, int _totalStates, int _totalFrames, Point _tileSize, float _frameDelay = .1f)
-    : base(position)
+  public AnimatedSprite(RenderManager _renderManager, Vector2 _position, int _totalStates, int _totalFrames, Point _tileSize, float _frameDelay = .1f)
+    : base(_renderManager, _position)
   {
     currentState = 0;
     currentFrame = 0;
@@ -34,11 +33,11 @@ public class AnimatedSprite : Sprite
     isActive = true;
   }
 
-  public override void LoadContent(string texturePath)
+  public override void LoadContent(RenderManager _renderManager, string _texturePath)
   {
-    spriteTexture = RenderManager.Content.Load<Texture2D>(texturePath);
-    center = new Vector2(tileSize.X / 2, tileSize.Y / 2);
-    rectangle = new Rectangle(0, 0, tileSize.X, tileSize.Y);
+    SetTexture(_renderManager.GetContent().Load<Texture2D>(_texturePath));
+    SetCenter(new Vector2(tileSize.X / 2, tileSize.Y / 2));
+    SetRectangle(new Rectangle(0, 0, tileSize.X, tileSize.Y));
   }
 
   public virtual void Update(GameTime gameTime)
@@ -78,37 +77,59 @@ public class AnimatedSprite : Sprite
     resetAnimation();
   }
 
+  public void DrawWithScale(RenderManager _renderManager)
+  {
+    var drawPosition = GetPosition() * new Vector2(_renderManager.GetRatioX(), _renderManager.GetRatioY());
+    _renderManager
+      .GetSpriteBatch()
+      .Draw(
+        GetTexture(),
+        drawPosition,
+        new Rectangle(getTilePosition(currentFrame, tileSize.X), getTilePosition(currentState, tileSize.Y), tileSize.X, tileSize.Y),
+        Color.White,
+        0,
+        GetCenter(),
+        Vector2.One,
+        SpriteEffects.None,
+        1
+      );
+  }
+
+  public override void Draw(RenderManager _renderManager)
+  {
+    _renderManager
+      .GetSpriteBatch()
+      .Draw(
+        GetTexture(),
+        GetPosition(),
+        new Rectangle(getTilePosition(currentFrame, tileSize.X), getTilePosition(currentState, tileSize.Y), tileSize.X, tileSize.Y),
+        Color.White,
+        0,
+        GetCenter(),
+        Vector2.One,
+        SpriteEffects.None,
+        1
+      );
+  }
+
+  // Sprite animated tilesheets have a pixel border and padding between tiles
+  // Alongside this we have to offset the origin rectangle we want to draw from the tile sheet
+  private int getTilePosition(int _index, int _tileSize)
+  {
+    return PADDING * (_index * 2 + 2) + _index * _tileSize;
+  }
+
   private void resetAnimation()
   {
     currentFrame = 0;
     frameDelayCounter = 0;
   }
 
-  public override void SetBounds(Point mapSizePixels)
-  {
-    minPos = new Vector2(ORIGIN_OFFSET, ORIGIN_OFFSET);
-    maxPos = new Vector2(mapSizePixels.X - tileSize.X, mapSizePixels.Y - tileSize.Y);
-  }
+  // Getters
 
-  // Sprite animated tilesheets have a pixel border and padding between tiles
-  // Alongside this we have to offset the origin rectangle we want to draw from the tile sheet
-  private int getTilePosition(int index, int tileSize)
-  {
-    return PADDING * (index * 2 + 2) + index * tileSize;
-  }
+  public int GetCurrentState() => currentState;
 
-  public override void Draw()
-  {
-    RenderManager.SpriteBatch.Draw(
-      spriteTexture,
-      drawPosition,
-      new Rectangle(getTilePosition(currentFrame, tileSize.X), getTilePosition(currentState, tileSize.Y), tileSize.X, tileSize.Y),
-      Color.White,
-      0,
-      center,
-      Vector2.One,
-      SpriteEffects.None,
-      1
-    );
-  }
+  public int GetCurrentFrame() => currentFrame;
+
+  public bool IsActive() => isActive;
 }

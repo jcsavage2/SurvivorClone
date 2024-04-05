@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace SurvivorClone;
@@ -8,50 +6,36 @@ namespace SurvivorClone;
 public class Player : AnimatedSprite
 {
   // State
-  public float Health { get; set; }
+  private float health { get; set; }
 
   // Constants
   public const float BASE_SPEED = 150f;
   public const float FIRE_RATE = 1f;
   public const float MAX_HEALTH = 10f;
 
-  public enum PlayerStates
+  private enum PlayerStates
   {
     LEFT = 0,
     RIGHT = 1,
   }
 
-  public enum Direction
+  public Player(RenderManager _renderManager, Vector2 _position, int _totalStates, int _totalFrames, Point _tileSize, float _frameDelay = .125f)
+    : base(_renderManager, _position, _totalStates, _totalFrames, _tileSize, _frameDelay)
   {
-    Up,
-    Down,
-    Left,
-    Right
+    health = MAX_HEALTH;
   }
 
-  public Player(Vector2 position, int _totalStates, int _totalFrames, Point _tileSize, float _frameDelay = .125f)
-    : base(position, _totalStates, _totalFrames, _tileSize, _frameDelay)
-  {
-    Health = MAX_HEALTH;
-  }
-
-  public override void Update(GameTime gameTime)
+  public void Update(GameTime gameTime, Map _map)
   {
     base.Update(gameTime);
     float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-    handleMovement(elapsedTime);
-  }
-
-  // Moves the player based on keyboard input, handles collision with the window edges
-  private void handleMovement(float elapsedTime)
-  {
     bool left = InputManager.CurrentKeyboardState.IsKeyDown(Keys.Left),
       right = InputManager.CurrentKeyboardState.IsKeyDown(Keys.Right),
       up = InputManager.CurrentKeyboardState.IsKeyDown(Keys.Up),
       down = InputManager.CurrentKeyboardState.IsKeyDown(Keys.Down);
 
-    Vector2 newPos = position;
+    Vector2 newPos = GetPosition();
     float playerSpeed = BASE_SPEED * elapsedTime;
 
     if (!up && !down && !left && !right)
@@ -93,11 +77,10 @@ public class Player : AnimatedSprite
       }
     }
 
-    position = Vector2.Clamp(newPos, minPos, maxPos);
+    SetBounds(Vector2.Zero, new Vector2(_map.GetMapDimensionsPixels().X - GetSize().X, _map.GetMapDimensionsPixels().Y - GetSize().Y));
+    SetPosition(Vector2.Clamp(newPos, GetMinPos(), GetMaxPos()));
   }
 
-  public void Draw(SpriteFont font)
-  {
-    base.Draw();
-  }
+  // Getters
+  public float GetHealth() => health;
 }

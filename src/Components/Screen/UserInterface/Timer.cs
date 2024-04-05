@@ -10,17 +10,16 @@ public class Timer : UIComponent
   private string text;
   private readonly Sprite timerBackground;
 
-  public Timer(Vector2 _origin, float _verticalOffset, float _horizontalOffset)
-    : base(_origin, _verticalOffset, _horizontalOffset)
+  public Timer(RenderManager _renderManager, Vector2 _origin, float _verticalOffset, float _horizontalOffset)
+    : base(_renderManager, _origin, _verticalOffset, _horizontalOffset)
   {
     time = 0;
-    timerBackground = new Sprite(origin);
-    timerBackground.LoadContent("UI/timer_background");
+    timerBackground = new Sprite(_renderManager, GetOrigin());
+    timerBackground.LoadContent(_renderManager, "UI/timer_background");
   }
 
-  public void Update(GameTime gameTime)
+  public void Update(RenderManager _renderManager, GameTime gameTime)
   {
-    base.Update();
     time += (float)gameTime.ElapsedGameTime.TotalSeconds;
     text = FormatText();
   }
@@ -30,24 +29,28 @@ public class Timer : UIComponent
     return TimeSpan.FromSeconds(time).ToString(@"mm\:ss\.ff");
   }
 
-  public void Draw()
+  public void Draw(RenderManager _renderManager)
   {
-    RenderManager.SpriteBatch.Draw(
-      timerBackground.spriteTexture,
-      drawPosition,
-      timerBackground.rectangle,
-      Color.White,
-      0f,
-      Vector2.Zero,
-      Vector2.One,
-      SpriteEffects.None,
-      0f
-    );
-    RenderManager.SpriteBatch.DrawString(
-      RenderManager.Font,
-      text,
-      new Vector2(drawPosition.X + (timerBackground.spriteTexture.Width / 3), drawPosition.Y + timerBackground.spriteTexture.Height / 5),
-      Color.White
-    );
+    _renderManager
+      .GetSpriteBatch()
+      .Draw(
+        timerBackground.GetTexture(),
+        GetDrawPosition(),
+        timerBackground.GetRectangle(),
+        Color.White,
+        0f,
+        Vector2.Zero,
+        Vector2.One,
+        SpriteEffects.None,
+        0f
+      );
+    _renderManager
+      .GetSpriteBatch()
+      .DrawString(
+        _renderManager.GetFont(),
+        text,
+        new Vector2(GetDrawPosition().X + (timerBackground.GetTexture().Width / 3), GetDrawPosition().Y + timerBackground.GetTexture().Height / 5),
+        Color.White
+      );
   }
 }
