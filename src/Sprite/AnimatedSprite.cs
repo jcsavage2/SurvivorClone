@@ -20,8 +20,8 @@ public class AnimatedSprite : Sprite
 
   private const int PADDING = 1;
 
-  public AnimatedSprite(RenderManager _renderManager, Vector2 _position, int _totalStates, int _totalFrames, Point _tileSize, float _frameDelay = .1f)
-    : base(_renderManager, _position)
+  public AnimatedSprite(Vector2 _position, int _totalStates, int _totalFrames, Point _tileSize, float _frameDelay = .1f)
+    : base(_position)
   {
     currentState = 0;
     currentFrame = 0;
@@ -37,7 +37,8 @@ public class AnimatedSprite : Sprite
   {
     spriteTexture = _renderManager.GetContent().Load<Texture2D>(_texturePath);
     center = new Vector2(tileSize.X / 2, tileSize.Y / 2);
-    rectangle = new Rectangle(0, 0, tileSize.X, tileSize.Y);
+    rectangle = new Rectangle((int)position.X, (int)position.Y, tileSize.X, tileSize.Y);
+    drawRectangle = new Rectangle(0, 0, tileSize.X, tileSize.Y);
   }
 
   public virtual void Update(GameTime gameTime)

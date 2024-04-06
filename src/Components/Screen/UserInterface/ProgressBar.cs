@@ -14,8 +14,8 @@ public class ProgressBar : UIComponent
   {
     progress = MathHelper.Clamp(_progress, 0, 1);
 
-    background = new Sprite(_renderManager, _origin);
-    fill = new Sprite(_renderManager, _origin);
+    background = new Sprite(_origin);
+    fill = new Sprite(_origin);
     background.LoadContent(_renderManager, "UI/back");
     fill.LoadContent(_renderManager, "UI/front");
   }

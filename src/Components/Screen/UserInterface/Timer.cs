@@ -14,7 +14,7 @@ public class Timer : UIComponent
     : base(_renderManager, _origin, _verticalOffset, _horizontalOffset)
   {
     time = 0;
-    timerBackground = new Sprite(_renderManager, _origin);
+    timerBackground = new Sprite(_origin);
     timerBackground.LoadContent(_renderManager, "UI/timer_background");
   }
 
@@ -36,7 +36,7 @@ public class Timer : UIComponent
       .Draw(
         timerBackground.GetTexture(),
         drawPosition,
-        timerBackground.GetRectangle(),
+        timerBackground.GetDrawRectangle(),
         Color.White,
         0f,
         Vector2.Zero,

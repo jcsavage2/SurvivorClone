@@ -29,7 +29,7 @@ public class GameManager : Game
       userInterface = new UserInterface();
 
       // Load entities
-      player = new Player(renderManager, new Vector2(200, 200), 2, 11, new Point(64, 64));
+      player = new Player(new Vector2(200, 200), 2, 11, new Point(64, 64));
     }
     catch (Exception ex)
     {
@@ -45,7 +45,7 @@ public class GameManager : Game
       userInterface.LoadContent(renderManager);
       map.LoadContent(renderManager);
 
-      player.LoadContent(renderManager, "Sprites/player");
+      player.LoadContent(renderManager, "Sprites/player", map);
     }
     catch (Exception ex)
     {

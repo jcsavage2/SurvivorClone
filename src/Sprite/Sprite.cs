@@ -8,6 +8,7 @@ public class Sprite
 {
   protected Texture2D spriteTexture { get; set; }
   protected Rectangle rectangle { get; set; }
+  protected Rectangle drawRectangle { get; set; }
 
   // State
   protected Vector2 position { get; set; }
@@ -15,7 +16,7 @@ public class Sprite
   protected Vector2 minPos { get; set; }
   protected Vector2 maxPos { get; set; }
 
-  public Sprite(RenderManager _renderManager, Vector2 startPosition)
+  public Sprite(Vector2 startPosition)
   {
     position = startPosition;
   }
@@ -24,22 +25,27 @@ public class Sprite
   {
     spriteTexture = _renderManager.GetContent().Load<Texture2D>(_texturePath);
     center = new Vector2(spriteTexture.Width / 2, spriteTexture.Height / 2);
-    rectangle = new Rectangle(0, 0, spriteTexture.Width, spriteTexture.Height);
+    rectangle = new Rectangle((int)position.X, (int)position.Y, spriteTexture.Width, spriteTexture.Height);
+    drawRectangle = new Rectangle(0, 0, spriteTexture.Width, spriteTexture.Height);
   }
 
   // Update the dimensions of the rectangle used to render the sprite
   public void UpdateDimensions(Vector2 _size)
   {
-    rectangle = new Rectangle(0, 0, (int)_size.X, (int)_size.Y);
+    rectangle = new Rectangle((int)position.X, (int)position.Y, (int)_size.X, (int)_size.Y);
   }
 
   public virtual void Draw(RenderManager _renderManager)
   {
-    _renderManager.GetSpriteBatch().Draw(spriteTexture, position, rectangle, Color.White, 0f, center, Vector2.One, SpriteEffects.None, 0f);
+    _renderManager.GetSpriteBatch().Draw(spriteTexture, position, drawRectangle, Color.White, 0f, center, Vector2.One, SpriteEffects.None, 0f);
   }
 
   // Setters
-  public void SetPosition(Vector2 _position) => position = _position;
+  public void SetPosition(Vector2 _position)
+  {
+    position = _position;
+    UpdateDimensions(new Vector2(rectangle.Width, rectangle.Height));
+  }
 
   public void SetBounds(Vector2 _minPos, Vector2 _maxPos)
   {
@@ -58,7 +64,9 @@ public class Sprite
 
   public Vector2 GetCenter() => center;
 
-  public Rectangle GetRectangle() => rectangle;
+  public virtual Rectangle GetRectangle() => rectangle;
+
+  public Rectangle GetDrawRectangle() => drawRectangle;
 
   public Vector2 GetMinPos() => minPos;
 
