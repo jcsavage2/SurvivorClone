@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -66,4 +67,9 @@ public class Sprite
   public Texture2D GetTexture() => spriteTexture;
 
   public virtual Vector2 GetSize() => new Vector2(rectangle.Width, rectangle.Height);
+
+  internal void LoadContent(RenderManager renderManager)
+  {
+    throw new NotImplementedException();
+  }
 }

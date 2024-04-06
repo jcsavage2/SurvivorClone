@@ -58,6 +58,12 @@ public class LogManager
     logger.Info(message);
   }
 
+  public void ThrowErrorLog(string message)
+  {
+    logger.Error(message);
+    throw new InvalidOperationException(message);
+  }
+
   public void HandleError(Exception ex, string message)
   {
     logger.Error(ex, message);

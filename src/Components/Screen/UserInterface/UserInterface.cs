@@ -17,7 +17,6 @@ namespace SurvivorClone
 
     public void Update(RenderManager _renderManager, GameTime gameTime, Player player)
     {
-      // Update positions from render target window size
       float percentRemainingHealth = player.GetHealth() / Player.MAX_HEALTH;
       healthBar.Update(_renderManager, percentRemainingHealth);
       timer.Update(_renderManager, gameTime);

@@ -24,7 +24,7 @@ public class GameManager : Game
       renderManager = new RenderManager(Content, new GraphicsDeviceManager(this), new Point(960, 540), Window);
 
       // Load user view
-      map = new Map(25, 64);
+      map = new Map(30, 64);
       camera = new Camera();
       userInterface = new UserInterface();
 
