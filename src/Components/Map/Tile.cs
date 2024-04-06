@@ -17,9 +17,9 @@ public class Tile : Sprite
 
   public new void LoadContent(RenderManager _renderManager)
   {
-    SetTexture(_renderManager.GetContent().Load<Texture2D>("Maps/" + texturePath));
-    SetCenter(new Vector2(GetTexture().Width / 2, GetTexture().Height / 2));
-    SetRectangle(new Rectangle(0, 0, GetTexture().Width, GetTexture().Height));
+    spriteTexture = _renderManager.GetContent().Load<Texture2D>("Maps/" + texturePath);
+    center = new Vector2(spriteTexture.Width / 2, spriteTexture.Height / 2);
+    rectangle = new Rectangle(0, 0, spriteTexture.Width, spriteTexture.Height);
   }
 
   // Getters

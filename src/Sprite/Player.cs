@@ -35,7 +35,7 @@ public class Player : AnimatedSprite
       up = InputManager.CurrentKeyboardState.IsKeyDown(Keys.Up),
       down = InputManager.CurrentKeyboardState.IsKeyDown(Keys.Down);
 
-    Vector2 newPos = GetPosition();
+    Vector2 newPos = position;
     float playerSpeed = BASE_SPEED * elapsedTime;
 
     if (!up && !down && !left && !right)
@@ -77,8 +77,8 @@ public class Player : AnimatedSprite
       }
     }
 
-    SetBounds(Vector2.Zero, new Vector2(_map.GetMapDimensionsPixels().X - GetSize().X, _map.GetMapDimensionsPixels().Y - GetSize().Y));
-    SetPosition(Vector2.Clamp(newPos, GetMinPos(), GetMaxPos()));
+    SetBounds(Vector2.Zero, new Vector2(_map.GetMapDimensionsPixels().X - rectangle.Width, _map.GetMapDimensionsPixels().Y - rectangle.Height));
+    position = Vector2.Clamp(newPos, minPos, maxPos);
   }
 
   // Getters

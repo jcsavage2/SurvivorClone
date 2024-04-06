@@ -4,12 +4,12 @@ namespace SurvivorClone;
 
 public class UIComponent
 {
-  private Vector2 origin { get; set; }
+  protected Vector2 origin { get; set; }
 
-  private float verticalOffset { get; set; }
+  protected float verticalOffset { get; set; }
   private float horizontalOffset { get; set; }
 
-  private Vector2 drawPosition { get; set; }
+  protected Vector2 drawPosition { get; set; }
 
   // horizontalOffset and verticalOffset are percentages of the window size pos or neg
   public UIComponent(RenderManager _renderManager, Vector2 _origin, float _verticalOffset, float _horizontalOffset)

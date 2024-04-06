@@ -35,9 +35,9 @@ public class AnimatedSprite : Sprite
 
   public override void LoadContent(RenderManager _renderManager, string _texturePath)
   {
-    SetTexture(_renderManager.GetContent().Load<Texture2D>(_texturePath));
-    SetCenter(new Vector2(tileSize.X / 2, tileSize.Y / 2));
-    SetRectangle(new Rectangle(0, 0, tileSize.X, tileSize.Y));
+    spriteTexture = _renderManager.GetContent().Load<Texture2D>(_texturePath);
+    center = new Vector2(tileSize.X / 2, tileSize.Y / 2);
+    rectangle = new Rectangle(0, 0, tileSize.X, tileSize.Y);
   }
 
   public virtual void Update(GameTime gameTime)
@@ -79,16 +79,16 @@ public class AnimatedSprite : Sprite
 
   public void DrawWithScale(RenderManager _renderManager)
   {
-    var drawPosition = GetPosition() * new Vector2(_renderManager.GetRatioX(), _renderManager.GetRatioY());
+    var drawPosition = position * new Vector2(_renderManager.GetRatioX(), _renderManager.GetRatioY());
     _renderManager
       .GetSpriteBatch()
       .Draw(
-        GetTexture(),
+        spriteTexture,
         drawPosition,
         new Rectangle(getTilePosition(currentFrame, tileSize.X), getTilePosition(currentState, tileSize.Y), tileSize.X, tileSize.Y),
         Color.White,
         0,
-        GetCenter(),
+        center,
         Vector2.One,
         SpriteEffects.None,
         1
@@ -100,12 +100,12 @@ public class AnimatedSprite : Sprite
     _renderManager
       .GetSpriteBatch()
       .Draw(
-        GetTexture(),
-        GetPosition(),
+        spriteTexture,
+        position,
         new Rectangle(getTilePosition(currentFrame, tileSize.X), getTilePosition(currentState, tileSize.Y), tileSize.X, tileSize.Y),
         Color.White,
         0,
-        GetCenter(),
+        center,
         Vector2.One,
         SpriteEffects.None,
         1

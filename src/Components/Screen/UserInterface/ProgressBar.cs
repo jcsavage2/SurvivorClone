@@ -14,8 +14,8 @@ public class ProgressBar : UIComponent
   {
     progress = MathHelper.Clamp(_progress, 0, 1);
 
-    background = new Sprite(_renderManager, GetOrigin());
-    fill = new Sprite(_renderManager, GetOrigin());
+    background = new Sprite(_renderManager, _origin);
+    fill = new Sprite(_renderManager, _origin);
     background.LoadContent(_renderManager, "UI/back");
     fill.LoadContent(_renderManager, "UI/front");
   }
@@ -30,26 +30,16 @@ public class ProgressBar : UIComponent
   {
     _renderManager
       .GetSpriteBatch()
-      .Draw(
-        background.GetTexture(),
-        GetDrawPosition(),
-        background.GetRectangle(),
-        Color.White,
-        0f,
-        Vector2.Zero,
-        Vector2.One,
-        SpriteEffects.None,
-        0f
-      );
+      .Draw(background.GetTexture(), drawPosition, background.GetRectangle(), Color.White, 0f, Vector2.Zero, Vector2.One, SpriteEffects.None, 0f);
     _renderManager
       .GetSpriteBatch()
-      .Draw(fill.GetTexture(), GetDrawPosition(), fill.GetRectangle(), Color.White, 0f, Vector2.Zero, Vector2.One, SpriteEffects.None, 0f);
+      .Draw(fill.GetTexture(), drawPosition, fill.GetRectangle(), Color.White, 0f, Vector2.Zero, Vector2.One, SpriteEffects.None, 0f);
     _renderManager
       .GetSpriteBatch()
       .DrawString(
         _renderManager.GetFont(),
         (int)(progress * 100) + " %",
-        new Vector2(GetDrawPosition().X + (background.GetTexture().Width / 2) - 75, GetDrawPosition().Y + background.GetTexture().Height / 3),
+        new Vector2(drawPosition.X + (background.GetTexture().Width / 2) - 75, drawPosition.Y + background.GetTexture().Height / 3),
         Color.White
       );
   }

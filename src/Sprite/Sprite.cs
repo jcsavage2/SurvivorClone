@@ -6,14 +6,14 @@ namespace SurvivorClone;
 
 public class Sprite
 {
-  private Texture2D spriteTexture { get; set; }
-  private Rectangle rectangle { get; set; }
+  protected Texture2D spriteTexture { get; set; }
+  protected Rectangle rectangle { get; set; }
 
   // State
-  private Vector2 position { get; set; }
-  private Vector2 center { get; set; }
-  private Vector2 minPos { get; set; }
-  private Vector2 maxPos { get; set; }
+  protected Vector2 position { get; set; }
+  protected Vector2 center { get; set; }
+  protected Vector2 minPos { get; set; }
+  protected Vector2 maxPos { get; set; }
 
   public Sprite(RenderManager _renderManager, Vector2 startPosition)
   {
