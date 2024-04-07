@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -38,6 +37,42 @@ public class Player : AnimatedSprite
     base.Update(gameTime);
     float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+    Vector2 newPos = handleMovement(elapsedTime);
+
+    // Handle collision with map tiles
+    Rectangle newPlayerRect = getPlayerRectangle(newPos);
+    Tile[] tiles = _map.GetCollisionTiles();
+
+    tiles
+      .Where(tile => tile.GetRectangle().Intersects(newPlayerRect))
+      .ToList()
+      .ForEach(tile =>
+      {
+        Rectangle tileRect = tile.GetRectangle();
+        if (newPlayerRect.Bottom > tileRect.Top && newPlayerRect.Top < tileRect.Top)
+        {
+          newPos.Y = position.Y;
+        }
+        else if (newPlayerRect.Top < tileRect.Bottom && newPlayerRect.Bottom > tileRect.Bottom)
+        {
+          newPos.Y = position.Y;
+        }
+
+        if (newPlayerRect.Right > tileRect.Left && newPlayerRect.Left < tileRect.Left)
+        {
+          newPos.X = position.X;
+        }
+        else if (newPlayerRect.Left < tileRect.Right && newPlayerRect.Right > tileRect.Right)
+        {
+          newPos.X = position.X;
+        }
+      });
+
+    SetPosition(Vector2.Clamp(newPos, minPos, maxPos));
+  }
+
+  private Vector2 handleMovement(float elapsedTime)
+  {
     bool left = InputManager.CurrentKeyboardState.IsKeyDown(Keys.Left),
       right = InputManager.CurrentKeyboardState.IsKeyDown(Keys.Right),
       up = InputManager.CurrentKeyboardState.IsKeyDown(Keys.Up),
@@ -85,43 +120,7 @@ public class Player : AnimatedSprite
       }
     }
 
-    // Handle collision with map tiles
-    Rectangle newPlayerRect = getPlayerRectangle(newPos);
-    Tile[] tiles = _map.GetCollisionTiles();
-
-    tiles
-      .Where(tile => tile.GetRectangle().Intersects(newPlayerRect))
-      .ToList()
-      .ForEach(tile =>
-      {
-        Rectangle tileRect = tile.GetRectangle();
-        if (newPlayerRect.Bottom > tileRect.Top && newPlayerRect.Top < tileRect.Top)
-        {
-          newPos.Y = position.Y;
-        }
-        else if (newPlayerRect.Top < tileRect.Bottom && newPlayerRect.Bottom > tileRect.Bottom)
-        {
-          newPos.Y = position.Y;
-        }
-
-        if (newPlayerRect.Right > tileRect.Left && newPlayerRect.Left < tileRect.Left)
-        {
-          newPos.X = position.X;
-        }
-        else if (newPlayerRect.Left < tileRect.Right && newPlayerRect.Right > tileRect.Right)
-        {
-          newPos.X = position.X;
-        }
-
-        // Prevent player from getting stuck
-        newPlayerRect = getPlayerRectangle(newPos);
-        if (newPlayerRect.Intersects(tileRect))
-        {
-          newPos = new Vector2(position.X, position.Y - rectangle.Height + 1);
-        }
-      });
-
-    SetPosition(Vector2.Clamp(newPos, minPos, maxPos));
+    return newPos;
   }
 
   // Getters

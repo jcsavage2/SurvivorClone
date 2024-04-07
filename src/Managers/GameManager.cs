@@ -8,6 +8,7 @@ namespace SurvivorClone;
 public class GameManager : Game
 {
   private readonly RenderManager renderManager;
+  private readonly EnemyManager enemyManager;
 
   private readonly Player player;
   private readonly Map map;
@@ -22,6 +23,7 @@ public class GameManager : Game
     try
     {
       renderManager = new RenderManager(Content, new GraphicsDeviceManager(this), new Point(960, 540), Window);
+      enemyManager = new EnemyManager(10, 2, "Sprites/enemy");
 
       // Load user view
       map = new Map(30, 64);
@@ -65,6 +67,8 @@ public class GameManager : Game
       camera.Update(renderManager, player, map);
       userInterface.Update(renderManager, gameTime, player);
 
+      enemyManager.Update(renderManager, gameTime, map, player);
+
       base.Update(gameTime);
     }
     catch (Exception ex)
@@ -85,6 +89,7 @@ public class GameManager : Game
         {
           map.Draw(renderManager);
           player.DrawWithScale(renderManager);
+          enemyManager.Draw(renderManager);
         },
         () =>
         {

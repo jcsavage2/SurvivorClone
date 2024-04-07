@@ -36,14 +36,14 @@ public class Map
 
     // Allocate a certain percentage of the map to different file types
     int totalTiles = mapDimensionsTiles.X * mapDimensionsTiles.Y;
-    int numCollisionTiles = (int)Math.Floor(totalTiles * .02);
+    int numCollisionTiles = (int)Math.Floor(totalTiles * .01);
     int numDecorationTiles = (int)Math.Floor(totalTiles * .5);
 
     Random rand = new Random();
     collisionTiles = new Tile[numCollisionTiles];
     for (int i = 0; i < numCollisionTiles; i++)
     {
-      Tuple<int, int> tilePosition = getTilePosition(rand, 0);
+      Tuple<int, int> tilePosition = getTilePosition(rand);
       if (tilePosition.Item1 == -1)
       {
         continue;
@@ -58,7 +58,7 @@ public class Map
 
     for (int i = 0; i < numDecorationTiles; i++)
     {
-      Tuple<int, int> tilePosition = getTilePosition(rand, 0);
+      Tuple<int, int> tilePosition = getTilePosition(rand);
       if (tilePosition.Item1 == -1)
       {
         continue;
@@ -95,7 +95,7 @@ public class Map
   // Private helpers
 
   // Fetch a random tile position, handle collisions if a tile has already been placed
-  private Tuple<int, int> getTilePosition(Random _rand, int retryCount)
+  private Tuple<int, int> getTilePosition(Random _rand, int retryCount = 0)
   {
     if (retryCount == 3)
     {
