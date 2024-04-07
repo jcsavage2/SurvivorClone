@@ -3,11 +3,11 @@ using NLog;
 
 namespace SurvivorClone;
 
-public class LogManager
+public static class Debug
 {
-  private Logger logger;
+  private static Logger logger;
 
-  public void InitLog(bool debug)
+  public static void InitLog(bool debug)
   {
     logger = NLog.LogManager.GetCurrentClassLogger();
     string time = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
@@ -48,23 +48,23 @@ public class LogManager
     NLog.LogManager.Shutdown(); // Flush and close down internal threads and timers
   }
 
-  public void LogFile(string message)
+  public static void LogFile(string message)
   {
     logger.Debug(message);
   }
 
-  public void LogConsole(string message)
+  public static void LogConsole(string message)
   {
     logger.Info(message);
   }
 
-  public void ThrowErrorLog(string message)
+  public static void ThrowErrorLog(string message)
   {
     logger.Error(message);
     throw new InvalidOperationException(message);
   }
 
-  public void HandleError(Exception ex, string message)
+  public static void HandleError(Exception ex, string message)
   {
     logger.Error(ex, message);
     Shutdown();

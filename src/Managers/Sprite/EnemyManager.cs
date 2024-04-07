@@ -33,7 +33,6 @@ public class EnemyManager
 
     foreach (Enemy enemy in spawnedEnemies)
     {
-      GameManager.Logger.LogConsole("Updating enemy");
       enemy.Update(gameTime, _map, _player);
     }
   }

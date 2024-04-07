@@ -15,11 +15,9 @@ public class GameManager : Game
   private readonly Camera camera;
   private readonly UserInterface userInterface;
 
-  public static readonly LogManager Logger = new LogManager();
-
   public GameManager(bool debug = false)
   {
-    Logger.InitLog(debug);
+    Debug.InitLog(debug);
     try
     {
       renderManager = new RenderManager(Content, new GraphicsDeviceManager(this), new Point(960, 540), Window);
@@ -35,7 +33,7 @@ public class GameManager : Game
     }
     catch (Exception ex)
     {
-      Logger.HandleError(ex, "Error in GameManager ctor");
+      Debug.HandleError(ex, "Error in GameManager ctor");
     }
   }
 
@@ -51,7 +49,7 @@ public class GameManager : Game
     }
     catch (Exception ex)
     {
-      Logger.HandleError(ex, "Error in LoadContent");
+      Debug.HandleError(ex, "Error in LoadContent");
     }
   }
 
@@ -73,7 +71,7 @@ public class GameManager : Game
     }
     catch (Exception ex)
     {
-      Logger.HandleError(ex, "Error in Update");
+      Debug.HandleError(ex, "Error in Update");
     }
   }
 
@@ -101,7 +99,7 @@ public class GameManager : Game
     }
     catch (Exception ex)
     {
-      Logger.HandleError(ex, "Error in Draw");
+      Debug.HandleError(ex, "Error in Draw");
     }
   }
 }
