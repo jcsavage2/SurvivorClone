@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -7,14 +6,8 @@ namespace SurvivorClone;
 public class Sprite
 {
   protected Texture2D spriteTexture { get; set; }
-  protected Rectangle rectangle { get; set; }
-  protected Rectangle drawRectangle { get; set; }
-
-  // State
+  protected Point size { get; set; }
   protected Vector2 position { get; set; }
-  protected Vector2 center { get; set; }
-  protected Vector2 minPos { get; set; }
-  protected Vector2 maxPos { get; set; }
 
   public Sprite(Vector2 startPosition)
   {
@@ -24,60 +17,34 @@ public class Sprite
   public virtual void LoadContent(RenderManager _renderManager, string _texturePath)
   {
     spriteTexture = _renderManager.GetContent().Load<Texture2D>(_texturePath);
-    center = new Vector2(spriteTexture.Width / 2, spriteTexture.Height / 2);
-    rectangle = new Rectangle((int)position.X, (int)position.Y, spriteTexture.Width, spriteTexture.Height);
-    drawRectangle = new Rectangle(0, 0, spriteTexture.Width, spriteTexture.Height);
-  }
-
-  // Update the dimensions of the rectangle used to render the sprite
-  public void UpdateDimensions(Vector2 _size)
-  {
-    rectangle = new Rectangle((int)position.X, (int)position.Y, (int)_size.X, (int)_size.Y);
+    size = new Point(spriteTexture.Width, spriteTexture.Height);
   }
 
   public virtual void Draw(RenderManager _renderManager)
   {
-    _renderManager.GetSpriteBatch().Draw(spriteTexture, position, drawRectangle, Color.White, 0f, center, Vector2.One, SpriteEffects.None, 0f);
+    _renderManager.DrawTexture(spriteTexture, position, new Rectangle(0, 0, size.X, size.Y));
   }
 
-  // Setters
-  public void SetPosition(Vector2 _position)
+  public virtual void Draw(RenderManager _renderManager, Vector2 _position)
   {
-    position = _position;
-    UpdateDimensions(new Vector2(rectangle.Width, rectangle.Height));
+    _renderManager.DrawTexture(spriteTexture, _position, new Rectangle(0, 0, size.X, size.Y));
   }
 
-  public void SetBounds(Vector2 _minPos, Vector2 _maxPos)
-  {
-    minPos = _minPos;
-    maxPos = _maxPos;
-  }
+  // --- SET --- //
+  public void SetSize(Point _size) => size = _size;
 
-  public void SetRectangle(Rectangle _rectangle) => rectangle = _rectangle;
+  public void SetPosition(Vector2 _position) => position = _position;
 
-  public void SetTexture(Texture2D _texture) => spriteTexture = _texture;
+  // --- GET --- //
+  public Rectangle GetBoundingBox() => new Rectangle((int)position.X, (int)position.Y, size.X, size.Y);
 
-  public void SetCenter(Vector2 _center) => center = _center;
+  public Rectangle GetBoundingBox(Vector2 _position) => new Rectangle((int)_position.X, (int)_position.Y, size.X, size.Y);
 
-  // Getters
+  public Vector2 GetCenter() => new Vector2(position.X + size.X / 2, position.Y + size.Y / 2);
+
+  public Point GetSize() => size;
+
   public Vector2 GetPosition() => position;
 
-  public Vector2 GetCenter() => center;
-
-  public virtual Rectangle GetRectangle() => rectangle;
-
-  public Rectangle GetDrawRectangle() => drawRectangle;
-
-  public Vector2 GetMinPos() => minPos;
-
-  public Vector2 GetMaxPos() => maxPos;
-
-  public Texture2D GetTexture() => spriteTexture;
-
-  public virtual Vector2 GetSize() => new Vector2(rectangle.Width, rectangle.Height);
-
-  internal void LoadContent(RenderManager renderManager)
-  {
-    throw new NotImplementedException();
-  }
+  public Vector2 GetNewPosition(Vector2 velocity) => position + velocity;
 }

@@ -19,11 +19,14 @@ public class RenderManager
   private RenderTarget2D renderTarget { get; set; }
   private ContentManager content { get; set; }
   private GraphicsDeviceManager graphics { get; set; }
-  private SpriteBatch spriteBatch { get; set; }
   private GameWindow window { get; set; }
+  private SpriteBatch spriteBatch { get; set; }
 
   // Fonts
   private SpriteFont font { get; set; }
+
+  // Textures
+  private Texture2D redTexture;
 
   public RenderManager(ContentManager _content, GraphicsDeviceManager _graphicsManager, Point _renderSize, GameWindow _window)
   {
@@ -37,11 +40,16 @@ public class RenderManager
     window = _window;
   }
 
-  public void LoadContent(SpriteBatch _spriteBatch, string _fontPath = "Font/File")
+  public void LoadContent(string _fontPath = "Font/File")
   {
-    spriteBatch = _spriteBatch;
+    spriteBatch = new SpriteBatch(graphics.GraphicsDevice);
     renderTarget = new RenderTarget2D(graphics.GraphicsDevice, renderSize.X, renderSize.Y);
     font = content.Load<SpriteFont>(_fontPath);
+
+    // Debug helper data
+    redTexture = new Texture2D(graphics.GraphicsDevice, 1, 1);
+    redTexture.SetData(new[] { Color.Red });
+
     changeWindowSize(windowSize);
   }
 
@@ -51,11 +59,7 @@ public class RenderManager
     graphics.PreferredBackBufferWidth = size.X;
     graphics.PreferredBackBufferHeight = size.Y;
     graphics.ApplyChanges();
-    setDestinationRectangle();
-  }
 
-  private void setDestinationRectangle()
-  {
     ratioX = (float)windowSize.X / renderSize.X;
     ratioY = (float)windowSize.Y / renderSize.Y;
     float scale = Math.Min(ratioX, ratioY);
@@ -86,7 +90,7 @@ public class RenderManager
     }
   }
 
-  public void Draw(Camera _camera, Action _drawWithTranslation, Action _drawWithoutTranslation)
+  public void DrawScene(Camera _camera, Action _drawWithTranslation, Action _drawWithoutTranslation)
   {
     graphics.GraphicsDevice.SetRenderTarget(renderTarget);
     graphics.GraphicsDevice.Clear(Color.Gray);
@@ -109,7 +113,30 @@ public class RenderManager
     spriteBatch.End();
   }
 
-  // Getters
+  public void DrawTexture(Texture2D _texture, Vector2 _position, Rectangle _rectangle)
+  {
+    spriteBatch.Draw(_texture, _position, _rectangle, Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 1);
+
+    if (Debug.IsActive())
+    {
+      DrawBorder(_position, _rectangle);
+    }
+  }
+
+  public void DrawString(string _text, Vector2 _position, Color _color)
+  {
+    spriteBatch.DrawString(font, _text, _position, _color);
+  }
+
+  private void DrawBorder(Vector2 _position, Rectangle _rectangle)
+  {
+    spriteBatch.Draw(redTexture, new Rectangle((int)_position.X, (int)_position.Y, _rectangle.Width, 1), Color.White);
+    spriteBatch.Draw(redTexture, new Rectangle((int)_position.X, (int)_position.Y, 1, _rectangle.Height), Color.White);
+    spriteBatch.Draw(redTexture, new Rectangle((int)_position.X + _rectangle.Width, (int)_position.Y, 1, _rectangle.Height), Color.White);
+    spriteBatch.Draw(redTexture, new Rectangle((int)_position.X, (int)_position.Y + _rectangle.Height, _rectangle.Width, 1), Color.White);
+  }
+
+  // --- GET --- //
   public float GetRatioX() => ratioX;
 
   public float GetRatioY() => ratioY;
@@ -122,9 +149,9 @@ public class RenderManager
 
   public GraphicsDeviceManager GetGraphics() => graphics;
 
+  public GraphicsDevice GetGraphicsDevice() => graphics.GraphicsDevice;
+
   public GameWindow GetWindow() => window;
 
   public ContentManager GetContent() => content;
-
-  public SpriteBatch GetSpriteBatch() => spriteBatch;
 }

@@ -1,8 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using MonoGame.Extended;
 
 namespace SurvivorClone;
 
@@ -31,7 +27,6 @@ public class Enemy : AnimatedSprite
   public void LoadContent(RenderManager _renderManager, string _texturePath, Map _map)
   {
     base.LoadContent(_renderManager, _texturePath);
-    SetBounds(Vector2.Zero, new Vector2(_map.GetMapDimensionsPixels().X - rectangle.Width, _map.GetMapDimensionsPixels().Y - rectangle.Height));
   }
 
   public void Update(GameTime gameTime, Map _map, Player _player)
@@ -47,12 +42,12 @@ public class Enemy : AnimatedSprite
     if (playerPosition.X < position.X)
     {
       enemyPosition.X -= enemySpeed;
-      ChangeState((int)EnemyStates.LEFT);
+      SetState((int)EnemyStates.LEFT);
     }
     else if (playerPosition.X > position.X)
     {
       enemyPosition.X += enemySpeed;
-      ChangeState((int)EnemyStates.RIGHT);
+      SetState((int)EnemyStates.RIGHT);
     }
 
     if (playerPosition.Y < position.Y)
@@ -64,9 +59,9 @@ public class Enemy : AnimatedSprite
       enemyPosition.Y += enemySpeed;
     }
 
-    SetPosition(Vector2.Clamp(enemyPosition, minPos, maxPos));
+    SetPosition(enemyPosition);
   }
 
-  // Getters
+  // --- GET --- //
   public float GetHealth() => health;
 }

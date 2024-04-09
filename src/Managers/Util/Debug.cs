@@ -1,72 +1,44 @@
 using System;
-using NLog;
 
 namespace SurvivorClone;
 
 public static class Debug
 {
+  private static bool isActive;
   private static Logger logger;
 
-  public static void InitLog(bool debug)
+  public static void Init(bool debug)
   {
-    logger = NLog.LogManager.GetCurrentClassLogger();
-    string time = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-    string fileName = $"Debug/log-{time}.txt";
-
-    NLog.LogManager.Setup()
-      .LoadConfiguration(builder =>
-      {
-        builder.ForLogger().FilterMinLevel(LogLevel.Info).WriteToColoredConsole();
-        builder.ForLogger().FilterMinLevel(LogLevel.Debug).WriteToFile(fileName: fileName);
-        builder.ForLogger().FilterMinLevel(LogLevel.Error).WriteToColoredConsole();
-      });
-
-    if (debug)
-    {
-      Enable();
-    }
-    else
-    {
-      Disable();
-    }
-
-    LogConsole("Logger initialized");
+    logger = new Logger();
+    isActive = debug;
   }
 
-  public static void Enable()
+  public static void ThrowError(string message)
   {
-    NLog.LogManager.ResumeLogging();
+    Exception ex = new InvalidOperationException(message);
+    logger.Error(ex);
+    throw ex;
   }
 
-  public static void Disable()
+  public static void HandleError(Exception ex)
   {
-    NLog.LogManager.SuspendLogging();
-  }
-
-  public static void Shutdown()
-  {
+    logger.Error(ex);
     NLog.LogManager.Shutdown(); // Flush and close down internal threads and timers
+    isActive = false;
   }
 
-  public static void LogFile(string message)
+  public static void Log(string message)
   {
-    logger.Debug(message);
+    logger.Console(message);
   }
 
-  public static void LogConsole(string message)
+  public static void WriteFile(string message)
   {
-    logger.Info(message);
+    logger.File(message);
   }
 
-  public static void ThrowErrorLog(string message)
-  {
-    logger.Error(message);
-    throw new InvalidOperationException(message);
-  }
+  // --- SET --- //
+  public static bool IsActive() => isActive;
 
-  public static void HandleError(Exception ex, string message)
-  {
-    logger.Error(ex, message);
-    Shutdown();
-  }
+  public static void SetActive(bool _isActive) => isActive = _isActive;
 }

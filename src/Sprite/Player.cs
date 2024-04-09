@@ -26,51 +26,62 @@ public class Player : AnimatedSprite
     health = MAX_HEALTH;
   }
 
-  public void LoadContent(RenderManager _renderManager, string _texturePath, Map _map)
-  {
-    base.LoadContent(_renderManager, _texturePath);
-    SetBounds(Vector2.Zero, new Vector2(_map.GetMapDimensionsPixels().X - rectangle.Width, _map.GetMapDimensionsPixels().Y - rectangle.Height));
-  }
-
-  public void Update(GameTime gameTime, Map _map)
+  public void Update(RenderManager _renderManager, GameTime gameTime, Map _map)
   {
     base.Update(gameTime);
     float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-    Vector2 newPos = handleMovement(elapsedTime);
+    Vector2 velocity = handleMovement(elapsedTime);
+    Vector2 newPos = handleTileCollision(_map, GetNewPosition(velocity));
 
+    SetPosition(newPos);
+  }
+
+  // --- HELPERS --- //
+
+  // Returns an updated position based on collision with map tiles
+  private Vector2 handleTileCollision(Map _map, Vector2 _pos)
+  {
     // Handle collision with map tiles
-    Rectangle newPlayerRect = getPlayerRectangle(newPos);
+    Rectangle newPlayerRect = GetBoundingBox(_pos),
+      oldPlayerRect = GetBoundingBox();
     Tile[] tiles = _map.GetCollisionTiles();
 
     tiles
-      .Where(tile => tile.GetRectangle().Intersects(newPlayerRect))
+      .Where(tile => tile.GetBoundingBox().Intersects(newPlayerRect))
       .ToList()
       .ForEach(tile =>
       {
-        Rectangle tileRect = tile.GetRectangle();
-        if (newPlayerRect.Bottom > tileRect.Top && newPlayerRect.Top < tileRect.Top)
+        Rectangle tileRect = tile.GetBoundingBox();
+        // Check if player is above or below the tile to determine which axis to correct
+        if (oldPlayerRect.Bottom <= tileRect.Top || oldPlayerRect.Top >= tileRect.Bottom)
         {
-          newPos.Y = position.Y;
+          if (newPlayerRect.Bottom > tileRect.Top && newPlayerRect.Top < tileRect.Top)
+          {
+            _pos.Y = tileRect.Top - newPlayerRect.Height;
+          }
+          else if (newPlayerRect.Top < tileRect.Bottom && newPlayerRect.Bottom > tileRect.Bottom)
+          {
+            _pos.Y = tileRect.Bottom;
+          }
         }
-        else if (newPlayerRect.Top < tileRect.Bottom && newPlayerRect.Bottom > tileRect.Bottom)
+        else
         {
-          newPos.Y = position.Y;
-        }
-
-        if (newPlayerRect.Right > tileRect.Left && newPlayerRect.Left < tileRect.Left)
-        {
-          newPos.X = position.X;
-        }
-        else if (newPlayerRect.Left < tileRect.Right && newPlayerRect.Right > tileRect.Right)
-        {
-          newPos.X = position.X;
+          if (newPlayerRect.Right > tileRect.Left && newPlayerRect.Left < tileRect.Left)
+          {
+            _pos.X = tileRect.Left - newPlayerRect.Width;
+          }
+          else if (newPlayerRect.Left < tileRect.Right && newPlayerRect.Right > tileRect.Right)
+          {
+            _pos.X = tileRect.Right;
+          }
         }
       });
 
-    SetPosition(Vector2.Clamp(newPos, minPos, maxPos));
+    return _pos;
   }
 
+  // Calculates player velocity based on key input
   private Vector2 handleMovement(float elapsedTime)
   {
     bool left = InputManager.CurrentKeyboardState.IsKeyDown(Keys.Left),
@@ -78,7 +89,7 @@ public class Player : AnimatedSprite
       up = InputManager.CurrentKeyboardState.IsKeyDown(Keys.Up),
       down = InputManager.CurrentKeyboardState.IsKeyDown(Keys.Down);
 
-    Vector2 newPos = position;
+    Vector2 velocity = Vector2.Zero;
     float playerSpeed = BASE_SPEED * elapsedTime;
 
     if (!up && !down && !left && !right)
@@ -92,40 +103,37 @@ public class Player : AnimatedSprite
 
     if (up)
     {
-      newPos.Y -= playerSpeed;
+      velocity.Y = -playerSpeed;
     }
 
     if (down)
     {
-      newPos.Y += playerSpeed;
+      velocity.Y = playerSpeed;
     }
 
     if (left)
     {
-      newPos.X -= playerSpeed;
+      velocity.X = -playerSpeed;
 
       if (InputManager.IsKeyPressed(Keys.Left))
       {
-        ChangeState((int)PlayerStates.LEFT);
+        SetState((int)PlayerStates.LEFT);
       }
     }
 
     if (right)
     {
-      newPos.X += playerSpeed;
+      velocity.X = playerSpeed;
 
       if (InputManager.IsKeyPressed(Keys.Right))
       {
-        ChangeState((int)PlayerStates.RIGHT);
+        SetState((int)PlayerStates.RIGHT);
       }
     }
 
-    return newPos;
+    return velocity;
   }
 
-  // Getters
+  // --- GET --- //
   public float GetHealth() => health;
-
-  private Rectangle getPlayerRectangle(Vector2 _newPos) =>
-    new Rectangle((int)_newPos.X + rectangle.Width / 5, (int)_newPos.Y, rectangle.Width - rectangle.Width / 4, rectangle.Height);
 }

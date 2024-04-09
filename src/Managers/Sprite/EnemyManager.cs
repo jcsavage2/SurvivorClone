@@ -45,7 +45,7 @@ public class EnemyManager
     }
   }
 
-  // Private helpers
+  // --- HELPERS --- //
 
   // Creates a new enemy and loads its content
   private Enemy loadEnemy(RenderManager _renderManager, Map _map)

@@ -11,8 +11,8 @@ namespace SurvivorClone
 
     public void LoadContent(RenderManager _renderManager)
     {
-      healthBar = new ProgressBar(_renderManager, new Vector2(0, 0), .01f, .01f);
-      timer = new Timer(_renderManager, new Vector2(_renderManager.GetRenderSize().X, 0), .01f, -.2f);
+      healthBar = new ProgressBar(_renderManager, new Vector2(0, 0), 5, 5);
+      timer = new Timer(_renderManager, new Vector2(_renderManager.GetRenderSize().X, 0), 5, -160);
     }
 
     public void Update(RenderManager _renderManager, GameTime gameTime, Player player)

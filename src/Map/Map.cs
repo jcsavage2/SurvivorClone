@@ -92,7 +92,7 @@ public class Map
     }
   }
 
-  // Private helpers
+  // --- HELPERS --- //
 
   // Fetch a random tile position, handle collisions if a tile has already been placed
   private Tuple<int, int> getTilePosition(Random _rand, int retryCount = 0)
@@ -113,7 +113,7 @@ public class Map
     return getTilePosition(_rand, retryCount + 1);
   }
 
-  // Getters
+  // --- GET --- //
   public Tile[] GetCollisionTiles() => collisionTiles;
 
   public Point GetMapDimensionsPixels() => mapDimensionsPixels;

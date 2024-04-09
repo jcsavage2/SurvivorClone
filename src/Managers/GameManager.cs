@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace SurvivorClone;
@@ -13,15 +12,16 @@ public class GameManager : Game
   private readonly Player player;
   private readonly Map map;
   private readonly Camera camera;
+
   private readonly UserInterface userInterface;
 
   public GameManager(bool debug = false)
   {
-    Debug.InitLog(debug);
     try
     {
+      Debug.Init(debug);
+
       renderManager = new RenderManager(Content, new GraphicsDeviceManager(this), new Point(960, 540), Window);
-      enemyManager = new EnemyManager(10, 2, "Sprites/enemy");
 
       // Load user view
       map = new Map(30, 64);
@@ -30,10 +30,11 @@ public class GameManager : Game
 
       // Load entities
       player = new Player(new Vector2(200, 200), 2, 11, new Point(64, 64));
+      enemyManager = new EnemyManager(0, 2, "Sprites/enemy");
     }
     catch (Exception ex)
     {
-      Debug.HandleError(ex, "Error in GameManager ctor");
+      Debug.HandleError(ex);
     }
   }
 
@@ -41,15 +42,16 @@ public class GameManager : Game
   {
     try
     {
-      renderManager.LoadContent(new SpriteBatch(GraphicsDevice));
+      renderManager.LoadContent();
+
       userInterface.LoadContent(renderManager);
       map.LoadContent(renderManager);
 
-      player.LoadContent(renderManager, "Sprites/player", map);
+      player.LoadContent(renderManager, "Sprites/player");
     }
     catch (Exception ex)
     {
-      Debug.HandleError(ex, "Error in LoadContent");
+      Debug.HandleError(ex);
     }
   }
 
@@ -59,9 +61,12 @@ public class GameManager : Game
     {
       if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
         Exit();
+      if (InputManager.IsKeyPressed(Keys.F4))
+        Debug.SetActive(!Debug.IsActive());
+
       renderManager.UpdateWindowSize();
 
-      player.Update(gameTime, map);
+      player.Update(renderManager, gameTime, map);
       camera.Update(renderManager, player, map);
       userInterface.Update(renderManager, gameTime, player);
 
@@ -71,7 +76,7 @@ public class GameManager : Game
     }
     catch (Exception ex)
     {
-      Debug.HandleError(ex, "Error in Update");
+      Debug.HandleError(ex);
     }
   }
 
@@ -81,12 +86,12 @@ public class GameManager : Game
     {
       // First callback draws using camera translation
       // Second callback draws without camera translation
-      renderManager.Draw(
+      renderManager.DrawScene(
         camera,
         () =>
         {
           map.Draw(renderManager);
-          player.DrawWithScale(renderManager);
+          player.Draw(renderManager);
           enemyManager.Draw(renderManager);
         },
         () =>
@@ -99,7 +104,7 @@ public class GameManager : Game
     }
     catch (Exception ex)
     {
-      Debug.HandleError(ex, "Error in Draw");
+      Debug.HandleError(ex);
     }
   }
 }
