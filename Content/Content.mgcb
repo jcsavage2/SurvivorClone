@@ -189,7 +189,7 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/player.png
 
-#begin UI/back.png
+#begin UI/healthbar_background.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -199,9 +199,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:UI/back.png
+/build:UI/healthbar_background.png
 
-#begin UI/front.png
+#begin UI/healthbar_front.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -211,7 +211,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:UI/front.png
+/build:UI/healthbar_front.png
 
 #begin UI/timer_background.png
 /importer:TextureImporter

@@ -42,7 +42,7 @@ public class GameManager : Game
 
       // Load entities
       player = new Player(renderManager, "Sprites/player", new Vector2(200, 200), 2, 11, new Point(64, 64));
-      enemyManager = new EnemyManager(0, 2, "Sprites/enemy");
+      enemyManager = new EnemyManager(3, 2, "Sprites/enemy");
     }
     catch (Exception ex)
     {
@@ -61,11 +61,11 @@ public class GameManager : Game
 
       renderManager.UpdateWindowSize();
 
-      player.Update(renderManager, gameTime, map);
+      player.Update(renderManager, enemyManager, gameTime, map);
       camera.Update(renderManager, player, map);
-      userInterface.Update(renderManager, gameTime, player);
-
       enemyManager.Update(renderManager, gameTime, map, player);
+
+      userInterface.Update(renderManager, gameTime, player);
 
       base.Update(gameTime);
     }

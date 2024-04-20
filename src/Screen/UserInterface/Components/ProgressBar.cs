@@ -16,8 +16,8 @@ public class ProgressBar : UIComponent
   {
     progress = MathHelper.Clamp(_progress, 0, 1);
 
-    background = new Sprite(_renderManager, "UI/back", _origin);
-    fill = new Sprite(_renderManager, "UI/front", _origin);
+    background = new Sprite(_renderManager, "UI/healthbar_background", _origin);
+    fill = new Sprite(_renderManager, "UI/healthbar_front", _origin);
     text = getTimerText();
   }
 
@@ -43,4 +43,14 @@ public class ProgressBar : UIComponent
   {
     return (int)(progress * 100) + " %";
   }
+
+  // -- SET -- //
+  public void SetSize(Point _size)
+  {
+    background.SetSize(_size);
+    fill.SetSize(_size);
+  }
+
+  // -- GET -- //
+  public Point GetSize() => background.GetSize();
 }

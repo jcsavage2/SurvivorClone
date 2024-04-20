@@ -17,6 +17,9 @@ public class UIComponent
     position = new Vector2(_origin.X + horizontalOffset, _origin.Y + verticalOffset);
   }
 
+  // --- SET --- //
+  public void SetPosition(Vector2 _position) => position = _position;
+
   // --- GET --- //
 
   // Gets the draw position for a text centered in a texture background

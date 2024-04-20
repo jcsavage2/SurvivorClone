@@ -6,6 +6,7 @@ public class Enemy : AnimatedSprite
 {
   // State
   private float health { get; set; }
+  private float damage { get; set; }
 
   // Constants
   public const float MAX_HEALTH = 10f;
@@ -25,14 +26,16 @@ public class Enemy : AnimatedSprite
     int _totalStates,
     int _totalFrames,
     Point _tileSize,
-    float _frameDelay = .125f
+    float _frameDelay = .125f,
+    float _damage = 1f
   )
     : base(_renderManager, _texturePath, _position, _totalStates, _totalFrames, _tileSize, _frameDelay)
   {
     health = MAX_HEALTH;
+    damage = _damage;
   }
 
-  public void Update(GameTime gameTime, Map _map, Player _player)
+  public void Update(RenderManager _renderManager, GameTime gameTime, Map _map, Player _player)
   {
     base.Update(gameTime);
     float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -67,4 +70,6 @@ public class Enemy : AnimatedSprite
 
   // --- GET --- //
   public float GetHealth() => health;
+
+  public float GetDamage() => damage;
 }

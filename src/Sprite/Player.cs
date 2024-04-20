@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -12,7 +13,7 @@ public class Player : AnimatedSprite
   // Constants
   public const float BASE_SPEED = 150f;
   public const float FIRE_RATE = 1f;
-  public const float MAX_HEALTH = 10f;
+  public const float MAX_HEALTH = 100f;
 
   private enum PlayerStates
   {
@@ -34,7 +35,7 @@ public class Player : AnimatedSprite
     health = MAX_HEALTH;
   }
 
-  public void Update(RenderManager _renderManager, GameTime gameTime, Map _map)
+  public void Update(RenderManager _renderManager, EnemyManager _enemyManager, GameTime gameTime, Map _map)
   {
     base.Update(gameTime);
     float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -42,10 +43,30 @@ public class Player : AnimatedSprite
     Vector2 velocity = handleMovement(elapsedTime);
     Vector2 newPos = handleTileCollision(_map, GetNewPosition(velocity));
 
+    float damageTaken = handleEnemyCollision(_enemyManager, elapsedTime);
+    health -= damageTaken;
+
     SetPosition(newPos);
   }
 
   // --- HELPERS --- //
+
+  // Returns damage taken according to enemy collision
+  private float handleEnemyCollision(EnemyManager _enemyManager, float _elapsedTime)
+  {
+    float totalDamage = 0;
+
+    _enemyManager
+      .GetSpawnedEnemies()
+      .Where(enemy => enemy.GetBoundingBox().Intersects(GetBoundingBox()))
+      .ToList()
+      .ForEach(enemy =>
+      {
+        totalDamage += enemy.GetDamage() * _elapsedTime;
+      });
+
+    return totalDamage;
+  }
 
   // Returns an updated position based on collision with map tiles
   private Vector2 handleTileCollision(Map _map, Vector2 _pos)

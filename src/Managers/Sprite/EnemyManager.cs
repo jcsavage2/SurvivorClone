@@ -33,7 +33,7 @@ public class EnemyManager
 
     foreach (Enemy enemy in spawnedEnemies)
     {
-      enemy.Update(gameTime, _map, _player);
+      enemy.Update(_renderManager, gameTime, _map, _player);
     }
   }
 
@@ -52,4 +52,7 @@ public class EnemyManager
   {
     return new Enemy(_renderManager, texturePath, Vector2.Zero, 2, 2, new Point(64, 64));
   }
+
+  // -- GET -- //
+  public List<Enemy> GetSpawnedEnemies() => spawnedEnemies;
 }
