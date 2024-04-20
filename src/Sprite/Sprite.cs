@@ -9,13 +9,9 @@ public class Sprite
   protected Point size { get; set; }
   protected Vector2 position { get; set; }
 
-  public Sprite(Vector2 startPosition)
+  public Sprite(RenderManager _renderManager, string _texturePath, Vector2 startPosition)
   {
     position = startPosition;
-  }
-
-  public virtual void LoadContent(RenderManager _renderManager, string _texturePath)
-  {
     spriteTexture = _renderManager.GetContent().Load<Texture2D>(_texturePath);
     size = new Point(spriteTexture.Width, spriteTexture.Height);
   }

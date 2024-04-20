@@ -16,17 +16,15 @@ public class ProgressBar : UIComponent
   {
     progress = MathHelper.Clamp(_progress, 0, 1);
 
-    background = new Sprite(_origin);
-    fill = new Sprite(_origin);
-    background.LoadContent(_renderManager, "UI/back");
-    fill.LoadContent(_renderManager, "UI/front");
+    background = new Sprite(_renderManager, "UI/back", _origin);
+    fill = new Sprite(_renderManager, "UI/front", _origin);
     text = getTimerText();
   }
 
   public void Update(RenderManager _renderManager, float _progress)
   {
     progress = MathHelper.Clamp(_progress, 0, 1);
-    int newWidth = (int)(background.GetSize().X * .5);
+    int newWidth = (int)(background.GetSize().X * progress);
     fill.SetSize(new Point(newWidth, background.GetSize().Y));
     text = getTimerText();
     textDrawPos = GetTextCenterDrawPosition(_renderManager, text, background);

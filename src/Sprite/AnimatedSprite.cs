@@ -19,8 +19,16 @@ public class AnimatedSprite : Sprite
 
   private const int PADDING = 1;
 
-  public AnimatedSprite(Vector2 _position, int _totalStates, int _totalFrames, Point _size, float _frameDelay = .1f)
-    : base(_position)
+  public AnimatedSprite(
+    RenderManager _renderManager,
+    string _texturePath,
+    Vector2 _position,
+    int _totalStates,
+    int _totalFrames,
+    Point _size,
+    float _frameDelay = .1f
+  )
+    : base(_renderManager, _texturePath, _position)
   {
     currentState = 0;
     currentFrame = 0;
@@ -30,10 +38,6 @@ public class AnimatedSprite : Sprite
     frameDelay = _frameDelay;
     frameDelayCounter = 0;
     isActive = true;
-  }
-
-  public override void LoadContent(RenderManager _renderManager, string _texturePath)
-  {
     spriteTexture = _renderManager.GetContent().Load<Texture2D>(_texturePath);
   }
 

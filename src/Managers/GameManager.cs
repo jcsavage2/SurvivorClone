@@ -7,13 +7,13 @@ namespace SurvivorClone;
 public class GameManager : Game
 {
   private readonly RenderManager renderManager;
-  private readonly EnemyManager enemyManager;
+  private EnemyManager enemyManager;
 
-  private readonly Player player;
-  private readonly Map map;
-  private readonly Camera camera;
+  private Player player;
+  private Map map;
+  private Camera camera;
 
-  private readonly UserInterface userInterface;
+  private UserInterface userInterface;
 
   public GameManager(bool debug = false)
   {
@@ -22,15 +22,6 @@ public class GameManager : Game
       Debug.Init(debug);
 
       renderManager = new RenderManager(Content, new GraphicsDeviceManager(this), new Point(960, 540), Window);
-
-      // Load user view
-      map = new Map(30, 64);
-      camera = new Camera();
-      userInterface = new UserInterface();
-
-      // Load entities
-      player = new Player(new Vector2(200, 200), 2, 11, new Point(64, 64));
-      enemyManager = new EnemyManager(0, 2, "Sprites/enemy");
     }
     catch (Exception ex)
     {
@@ -44,10 +35,14 @@ public class GameManager : Game
     {
       renderManager.LoadContent();
 
-      userInterface.LoadContent(renderManager);
-      map.LoadContent(renderManager);
+      userInterface = new UserInterface(renderManager);
 
-      player.LoadContent(renderManager, "Sprites/player");
+      camera = new Camera();
+      map = new Map(renderManager, 30, 64);
+
+      // Load entities
+      player = new Player(renderManager, "Sprites/player", new Vector2(200, 200), 2, 11, new Point(64, 64));
+      enemyManager = new EnemyManager(0, 2, "Sprites/enemy");
     }
     catch (Exception ex)
     {

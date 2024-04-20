@@ -20,8 +20,16 @@ public class Player : AnimatedSprite
     RIGHT = 1,
   }
 
-  public Player(Vector2 _position, int _totalStates, int _totalFrames, Point _tileSize, float _frameDelay = .125f)
-    : base(_position, _totalStates, _totalFrames, _tileSize, _frameDelay)
+  public Player(
+    RenderManager _renderManager,
+    string _texturePath,
+    Vector2 _position,
+    int _totalStates,
+    int _totalFrames,
+    Point _tileSize,
+    float _frameDelay = .125f
+  )
+    : base(_renderManager, _texturePath, _position, _totalStates, _totalFrames, _tileSize, _frameDelay)
   {
     health = MAX_HEALTH;
   }

@@ -19,16 +19,29 @@ public class Map
     COLLISION
   }
 
-  public Map(int _mapSize, int _tileSize)
+  public Map(RenderManager _renderManager, int _mapSize, int _tileSize)
   {
     tiles = new Tile[_mapSize, _mapSize];
     mapDimensionsTiles = new Point(_mapSize, _mapSize);
     tileSize = _tileSize;
 
     mapDimensionsPixels = new Point(mapDimensionsTiles.X * tileSize, mapDimensionsTiles.Y * tileSize);
+
+    createMap(_renderManager);
   }
 
-  public void LoadContent(RenderManager _renderManager)
+  public void Draw(RenderManager _renderManager)
+  {
+    foreach (var tile in tiles)
+    {
+      tile.Draw(_renderManager);
+    }
+  }
+
+  // --- HELPERS --- //
+
+  // Create a map with a certain percentage of collision and decoration tiles
+  private void createMap(RenderManager _renderManager)
   {
     string[] baseTilesFilePaths = new string[] { "grass_empty" },
       decorationTilesFilePaths = new string[] { "grass1", "grass2", "grass3", "grass4", "grass5", "grass6", "grass7", "grass8", "grass9" },
@@ -49,8 +62,9 @@ public class Map
         continue;
       }
       tiles[tilePosition.Item1, tilePosition.Item2] = new Tile(
+        _renderManager,
+        "Maps/" + collisionTilesFilePaths[rand.Next(collisionTilesFilePaths.Length)],
         new Vector2(tilePosition.Item1 * tileSize, tilePosition.Item2 * tileSize),
-        collisionTilesFilePaths[rand.Next(collisionTilesFilePaths.Length)],
         TileType.COLLISION
       );
       collisionTiles[i] = tiles[tilePosition.Item1, tilePosition.Item2];
@@ -64,8 +78,9 @@ public class Map
         continue;
       }
       tiles[tilePosition.Item1, tilePosition.Item2] = new Tile(
+        _renderManager,
+        "Maps/" + decorationTilesFilePaths[rand.Next(decorationTilesFilePaths.Length)],
         new Vector2(tilePosition.Item1 * tileSize, tilePosition.Item2 * tileSize),
-        decorationTilesFilePaths[rand.Next(decorationTilesFilePaths.Length)],
         TileType.DECORATION
       );
     }
@@ -76,23 +91,16 @@ public class Map
       {
         if (tiles[x, y] == null)
         {
-          tiles[x, y] = new Tile(new Vector2(x * tileSize, y * tileSize), baseTilesFilePaths[rand.Next(baseTilesFilePaths.Length)], TileType.BASE);
+          tiles[x, y] = new Tile(
+            _renderManager,
+            "Maps/" + baseTilesFilePaths[rand.Next(baseTilesFilePaths.Length)],
+            new Vector2(x * tileSize, y * tileSize),
+            TileType.BASE
+          );
         }
-
-        tiles[x, y].LoadContent(_renderManager);
       }
     }
   }
-
-  public void Draw(RenderManager _renderManager)
-  {
-    foreach (var tile in tiles)
-    {
-      tile.Draw(_renderManager);
-    }
-  }
-
-  // --- HELPERS --- //
 
   // Fetch a random tile position, handle collisions if a tile has already been placed
   private Tuple<int, int> getTilePosition(Random _rand, int retryCount = 0)

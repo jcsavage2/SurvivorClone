@@ -4,12 +4,10 @@ namespace SurvivorClone
 {
   public class UserInterface
   {
-    private ProgressBar healthBar;
-    private Timer timer;
+    private readonly ProgressBar healthBar;
+    private readonly Timer timer;
 
-    public UserInterface() { }
-
-    public void LoadContent(RenderManager _renderManager)
+    public UserInterface(RenderManager _renderManager)
     {
       healthBar = new ProgressBar(_renderManager, new Vector2(0, 0), 5, 5);
       timer = new Timer(_renderManager, new Vector2(_renderManager.GetRenderSize().X, 0), 5, -160);

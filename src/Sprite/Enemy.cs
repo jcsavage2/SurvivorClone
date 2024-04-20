@@ -18,15 +18,18 @@ public class Enemy : AnimatedSprite
 
   public const float BASE_SPEED = 50f;
 
-  public Enemy(Vector2 _position, int _totalStates, int _totalFrames, Point _tileSize, float _frameDelay = .125f)
-    : base(_position, _totalStates, _totalFrames, _tileSize, _frameDelay)
+  public Enemy(
+    RenderManager _renderManager,
+    string _texturePath,
+    Vector2 _position,
+    int _totalStates,
+    int _totalFrames,
+    Point _tileSize,
+    float _frameDelay = .125f
+  )
+    : base(_renderManager, _texturePath, _position, _totalStates, _totalFrames, _tileSize, _frameDelay)
   {
     health = MAX_HEALTH;
-  }
-
-  public void LoadContent(RenderManager _renderManager, string _texturePath, Map _map)
-  {
-    base.LoadContent(_renderManager, _texturePath);
   }
 
   public void Update(GameTime gameTime, Map _map, Player _player)

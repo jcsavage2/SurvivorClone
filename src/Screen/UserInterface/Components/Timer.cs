@@ -15,8 +15,7 @@ public class Timer : UIComponent
     : base(_renderManager, _origin, _verticalOffset, _horizontalOffset)
   {
     time = 0;
-    timerBackground = new Sprite(_origin);
-    timerBackground.LoadContent(_renderManager, "UI/timer_background");
+    timerBackground = new Sprite(_renderManager, "UI/timer_background", _origin);
     text = FormatText();
   }
 

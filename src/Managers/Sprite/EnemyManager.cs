@@ -27,7 +27,7 @@ public class EnemyManager
 
     if (timeSinceLastSpawn >= spawnDelay && spawnedEnemies.Count < maxEnemies)
     {
-      spawnedEnemies.Add(loadEnemy(_renderManager, _map));
+      spawnedEnemies.Add(loadEnemy(_renderManager));
       timeSinceLastSpawn = 0;
     }
 
@@ -48,10 +48,8 @@ public class EnemyManager
   // --- HELPERS --- //
 
   // Creates a new enemy and loads its content
-  private Enemy loadEnemy(RenderManager _renderManager, Map _map)
+  private Enemy loadEnemy(RenderManager _renderManager)
   {
-    Enemy enemy = new Enemy(Vector2.Zero, 2, 2, new Point(64, 64));
-    enemy.LoadContent(_renderManager, texturePath, _map);
-    return enemy;
+    return new Enemy(_renderManager, texturePath, Vector2.Zero, 2, 2, new Point(64, 64));
   }
 }
