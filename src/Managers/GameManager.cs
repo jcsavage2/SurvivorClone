@@ -42,7 +42,7 @@ public class GameManager : Game
 
       // Load entities
       player = new Player(renderManager, "Sprites/player", new Vector2(200, 200), 2, 11, new Point(64, 64));
-      enemyManager = new EnemyManager(3, 2, "Sprites/enemy");
+      enemyManager = new EnemyManager(1, 2, "Sprites/flying_enemy");
     }
     catch (Exception ex)
     {

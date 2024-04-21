@@ -143,21 +143,20 @@ public class Player : AnimatedSprite
     if (left)
     {
       velocity.X = -playerSpeed;
-
-      if (InputManager.IsKeyPressed(Keys.Left))
-      {
-        SetState((int)PlayerStates.LEFT);
-      }
     }
 
     if (right)
     {
       velocity.X = playerSpeed;
+    }
 
-      if (InputManager.IsKeyPressed(Keys.Right))
-      {
-        SetState((int)PlayerStates.RIGHT);
-      }
+    if (velocity.X > 0 && currentState != (int)PlayerStates.RIGHT)
+    {
+      SetState((int)PlayerStates.RIGHT);
+    }
+    else if (velocity.X < 0 && currentState != (int)PlayerStates.LEFT)
+    {
+      SetState((int)PlayerStates.LEFT);
     }
 
     return velocity;

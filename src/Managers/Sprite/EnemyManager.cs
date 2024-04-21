@@ -50,7 +50,7 @@ public class EnemyManager
   // Creates a new enemy and loads its content
   private Enemy loadEnemy(RenderManager _renderManager)
   {
-    return new Enemy(_renderManager, texturePath, Vector2.Zero, 2, 2, new Point(64, 64));
+    return new Enemy(_renderManager, texturePath, Vector2.Zero, 4, 6, new Point(48, 48));
   }
 
   // -- GET -- //

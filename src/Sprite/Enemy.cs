@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 
 namespace SurvivorClone;
@@ -15,6 +16,8 @@ public class Enemy : AnimatedSprite
   {
     LEFT = 0,
     RIGHT = 1,
+    UP = 2,
+    DOWN = 3,
   }
 
   public const float BASE_SPEED = 50f;
@@ -40,32 +43,46 @@ public class Enemy : AnimatedSprite
     base.Update(gameTime);
     float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-    Vector2 playerPosition = _player.GetPosition();
-    Vector2 enemyPosition = position;
+    Vector2 playerPosition = _player.GetCenter(), center = GetCenter();
     float enemySpeed = BASE_SPEED * elapsedTime;
+    Vector2 velocity = Vector2.Zero;
 
     // Move towards player
-    if (playerPosition.X < position.X)
+    if (playerPosition.X < center.X)
     {
-      enemyPosition.X -= enemySpeed;
-      SetState((int)EnemyStates.LEFT);
+      velocity.X -= enemySpeed;
     }
-    else if (playerPosition.X > position.X)
+    else if (playerPosition.X > center.X)
     {
-      enemyPosition.X += enemySpeed;
-      SetState((int)EnemyStates.RIGHT);
+      velocity.X  += enemySpeed;
     }
 
     if (playerPosition.Y < position.Y)
     {
-      enemyPosition.Y -= enemySpeed;
+      velocity.Y  -= enemySpeed;
     }
     else if (playerPosition.Y > position.Y)
     {
-      enemyPosition.Y += enemySpeed;
+      velocity.Y += enemySpeed;
     }
 
-    SetPosition(enemyPosition);
+    int newState = -1;
+    if (velocity.Y > 0 && Math.Abs(playerPosition.X - center.X) < 75){
+      newState = (int)EnemyStates.DOWN;
+    } else if (velocity.Y < 0 && Math.Abs(playerPosition.X - center.X) < 75){
+      newState = (int)EnemyStates.UP;
+    } else if (velocity.X > 0){
+      newState = (int)EnemyStates.RIGHT;
+    } else if (velocity.X < 0){
+      newState = (int)EnemyStates.LEFT;
+    }
+
+    if (newState != -1 && newState != currentState && !_player.GetBoundingBox().Intersects(GetBoundingBox()))
+    {
+      SetState(newState);
+    }
+
+    SetPosition(position + velocity);
   }
 
   // --- GET --- //
