@@ -9,13 +9,15 @@ public class Player : AnimatedSprite
 {
   // State
   private float health { get; set; }
+  private List<Projectile> projectiles { get; set; }
+  private float timeSinceLastFire { get; set; }
 
   // Constants
   public const float BASE_SPEED = 150f;
   public const float FIRE_RATE = 1f;
   public const float MAX_HEALTH = 100f;
 
-  private enum PlayerStates
+  public enum PlayerStates
   {
     LEFT = 0,
     RIGHT = 1,
@@ -27,12 +29,14 @@ public class Player : AnimatedSprite
     Vector2 _position,
     int _totalStates,
     int _totalFrames,
+    int _initialState,
     Point _tileSize,
     float _frameDelay = .125f
   )
-    : base(_renderManager, _texturePath, _position, _totalStates, _totalFrames, _tileSize, _frameDelay)
+    : base(_renderManager, _texturePath, _position, _totalStates, _totalFrames, _initialState, _tileSize, _frameDelay)
   {
     health = MAX_HEALTH;
+    projectiles = new List<Projectile>();
   }
 
   public void Update(RenderManager _renderManager, EnemyManager _enemyManager, GameTime gameTime, Map _map)
@@ -43,29 +47,47 @@ public class Player : AnimatedSprite
     Vector2 velocity = handleMovement(elapsedTime);
     Vector2 newPos = handleTileCollision(_map, GetNewPosition(velocity));
 
-    float damageTaken = handleEnemyCollision(_enemyManager, elapsedTime);
-    health -= damageTaken;
+    handleAttack(_renderManager,  elapsedTime, _enemyManager, _map);
 
     SetPosition(newPos);
   }
 
+  public override void Draw(RenderManager _renderManager)
+  {
+    base.Draw(_renderManager);
+    foreach (Projectile projectile in projectiles)
+    {
+      projectile.Draw(_renderManager);
+    }
+  }
+
   // --- HELPERS --- //
 
-  // Returns damage taken according to enemy collision
-  private float handleEnemyCollision(EnemyManager _enemyManager, float _elapsedTime)
+  // Handles player attack logic
+  private void handleAttack(RenderManager _renderManager, float elapsedTime, EnemyManager _enemyManager, Map _map)
   {
-    float totalDamage = 0;
+    timeSinceLastFire += elapsedTime;
+    if (timeSinceLastFire >= FIRE_RATE)
+    {
+      timeSinceLastFire = 0;
+      projectiles.Add(new Projectile(_renderManager, "Sprites/base_projectile", GetPosition(), Projectile.Direction.LEFT, 1, 100));
+    }
 
-    _enemyManager
-      .GetSpawnedEnemies()
-      .Where(enemy => enemy.GetBoundingBox().Intersects(GetBoundingBox()))
-      .ToList()
-      .ForEach(enemy =>
+    List<Projectile> deadProjectiles = new List<Projectile>();
+    List<Enemy> spawnedEnemies = _enemyManager.GetSpawnedEnemies();
+    foreach (Projectile projectile in projectiles)
+    {
+      projectile.Update(_renderManager, elapsedTime, _map, spawnedEnemies);
+      if (projectile.IsDead())
       {
-        totalDamage += enemy.GetDamage() * _elapsedTime;
-      });
+        deadProjectiles.Add(projectile);
+      }
+    }
 
-    return totalDamage;
+    foreach (Projectile projectile in deadProjectiles)
+    {
+      projectiles.Remove(projectile);
+    }
   }
 
   // Returns an updated position based on collision with map tiles
@@ -161,6 +183,9 @@ public class Player : AnimatedSprite
 
     return velocity;
   }
+
+  // --- SET --- //
+  public void TakeDamage(float _damage) => health -= _damage;
 
   // --- GET --- //
   public float GetHealth() => health;

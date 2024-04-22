@@ -32,9 +32,10 @@ public class Sprite
   public void SetPosition(Vector2 _position) => position = _position;
 
   // --- GET --- //
-  public Rectangle GetBoundingBox() => new Rectangle((int)position.X, (int)position.Y, size.X, size.Y);
 
   public Rectangle GetBoundingBox(Vector2 _position) => new Rectangle((int)_position.X, (int)_position.Y, size.X, size.Y);
+
+  public Rectangle GetBoundingBox() => GetBoundingBox(position);
 
   public Vector2 GetCenter() => new Vector2(position.X + size.X / 2, position.Y + size.Y / 2);
 

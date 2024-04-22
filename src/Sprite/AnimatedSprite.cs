@@ -25,12 +25,13 @@ public class AnimatedSprite : Sprite
     Vector2 _position,
     int _totalStates,
     int _totalFrames,
+    int _initialState,
     Point _size,
     float _frameDelay = .1f
   )
     : base(_renderManager, _texturePath, _position)
   {
-    currentState = 0;
+    currentState = _initialState;
     currentFrame = 0;
     totalStates = _totalStates;
     totalFrames = _totalFrames;

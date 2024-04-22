@@ -31,9 +31,20 @@ public class EnemyManager
       timeSinceLastSpawn = 0;
     }
 
+    List<Enemy> deadEnemies = new List<Enemy>();
     foreach (Enemy enemy in spawnedEnemies)
-    {
+    { 
+      if (enemy.IsDead())
+      {
+        deadEnemies.Add(enemy);
+        continue;
+      }
       enemy.Update(_renderManager, gameTime, _map, _player);
+    }
+
+    foreach (Enemy enemy in deadEnemies)
+    {
+      spawnedEnemies.Remove(enemy);
     }
   }
 
@@ -50,7 +61,7 @@ public class EnemyManager
   // Creates a new enemy and loads its content
   private Enemy loadEnemy(RenderManager _renderManager)
   {
-    return new Enemy(_renderManager, texturePath, Vector2.Zero, 4, 6, new Point(48, 48));
+    return new Enemy(_renderManager, texturePath, Vector2.Zero, 4, 6, (int)Enemy.EnemyStates.RIGHT, new Point(48, 48));
   }
 
   // -- GET -- //
