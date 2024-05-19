@@ -20,12 +20,15 @@ public class Projectile : Sprite
     DOWN = 4,
   }
 
+  public enum Origin { TOP = 1, BOTTOM = 2, LEFT = 3, RIGHT = 4 }
+
   public const float BASE_SPEED = 150f;
 
   public Projectile(
     RenderManager _renderManager,
     string _texturePath,
     Vector2 _position,
+    Origin _origin,
     Direction _direction,
     int _durability,
     float _damage
@@ -93,4 +96,6 @@ public class Projectile : Sprite
 
   // --- GET --- //
   public bool IsDead() => isDead;
+
+  // --- HELPERS --- //
 }

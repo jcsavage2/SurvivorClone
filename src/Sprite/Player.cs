@@ -47,7 +47,7 @@ public class Player : AnimatedSprite
     Vector2 velocity = handleMovement(elapsedTime);
     Vector2 newPos = handleTileCollision(_map, GetNewPosition(velocity));
 
-    handleAttack(_renderManager,  elapsedTime, _enemyManager, _map);
+    handleAttack(_renderManager, elapsedTime, _enemyManager, _map);
 
     SetPosition(newPos);
   }
@@ -70,7 +70,7 @@ public class Player : AnimatedSprite
     if (timeSinceLastFire >= FIRE_RATE)
     {
       timeSinceLastFire = 0;
-      projectiles.Add(new Projectile(_renderManager, "Sprites/base_projectile", GetPosition(), Projectile.Direction.LEFT, 1, 100));
+      projectiles.Add(new Projectile(_renderManager, "Sprites/base_projectile", GetCenterLeft(), Projectile.Origin.LEFT, Projectile.Direction.LEFT, 1, 100));
     }
 
     List<Projectile> deadProjectiles = new List<Projectile>();

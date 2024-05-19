@@ -106,6 +106,11 @@ public class AnimatedSprite : Sprite
 
   // --- GET --- //
 
+  public Vector2 GetCenterLeft() => new Vector2(position.X, position.Y + size.Y / 2);
+  public Vector2 GetCenterRight() => new Vector2(position.X + size.X, position.Y + size.Y / 2);
+  public Vector2 GetCenterTop() => new Vector2(position.X + size.X / 2, position.Y);
+  public Vector2 GetCenterBottom() => new Vector2(position.X + size.X / 2, position.Y + size.Y);
+
   public int GetCurrentState() => currentState;
 
   public int GetCurrentFrame() => currentFrame;
