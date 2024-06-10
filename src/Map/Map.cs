@@ -5,12 +5,11 @@ namespace SurvivorClone;
 
 public class Map
 {
-  private Point mapDimensionsPixels { get; set; }
-  private Point mapDimensionsTiles { get; set; }
-  private int tileSize { get; set; }
+  public Point MapDimensionsPixels { get; set; }
+  public Point MapDimensionsTiles { get; set; }
+  public int TileSize { get; set; }
+  public Tile[] CollisionTiles { get; set; }
   private readonly Tile[,] tiles;
-
-  private Tile[] collisionTiles;
 
   public enum TileType
   {
@@ -22,10 +21,10 @@ public class Map
   public Map(RenderManager _renderManager, int _mapSize, int _tileSize)
   {
     tiles = new Tile[_mapSize, _mapSize];
-    mapDimensionsTiles = new Point(_mapSize, _mapSize);
-    tileSize = _tileSize;
+    MapDimensionsTiles = new Point(_mapSize, _mapSize);
+    TileSize = _tileSize;
 
-    mapDimensionsPixels = new Point(mapDimensionsTiles.X * tileSize, mapDimensionsTiles.Y * tileSize);
+    MapDimensionsPixels = new Point(MapDimensionsTiles.X * TileSize, MapDimensionsTiles.Y * TileSize);
 
     createMap(_renderManager);
   }
@@ -48,15 +47,17 @@ public class Map
       collisionTilesFilePaths = new string[] { "bush1", "rock1" };
 
     // Allocate a certain percentage of the map to different file types
-    int totalTiles = mapDimensionsTiles.X * mapDimensionsTiles.Y;
+    int totalTiles = MapDimensionsTiles.X * MapDimensionsTiles.Y;
     int numCollisionTiles = (int)Math.Floor(totalTiles * .01);
     int numDecorationTiles = (int)Math.Floor(totalTiles * .5);
 
+    bool[,] visited = new bool[MapDimensionsTiles.X, MapDimensionsTiles.Y];
+
     Random rand = new Random();
-    collisionTiles = new Tile[numCollisionTiles];
+    CollisionTiles = new Tile[numCollisionTiles];
     for (int i = 0; i < numCollisionTiles; i++)
     {
-      Tuple<int, int> tilePosition = getTilePosition(rand);
+      Tuple<int, int> tilePosition = getTilePosition(visited, rand);
       if (tilePosition.Item1 == -1)
       {
         continue;
@@ -64,15 +65,16 @@ public class Map
       tiles[tilePosition.Item1, tilePosition.Item2] = new Tile(
         _renderManager,
         "Maps/" + collisionTilesFilePaths[rand.Next(collisionTilesFilePaths.Length)],
-        new Vector2(tilePosition.Item1 * tileSize, tilePosition.Item2 * tileSize),
+        new Vector2(tilePosition.Item1 * TileSize, tilePosition.Item2 * TileSize),
         TileType.COLLISION
       );
-      collisionTiles[i] = tiles[tilePosition.Item1, tilePosition.Item2];
+      CollisionTiles[i] = tiles[tilePosition.Item1, tilePosition.Item2];
+      visited[tilePosition.Item1, tilePosition.Item2] = true;
     }
 
     for (int i = 0; i < numDecorationTiles; i++)
     {
-      Tuple<int, int> tilePosition = getTilePosition(rand);
+      Tuple<int, int> tilePosition = getTilePosition(visited, rand);
       if (tilePosition.Item1 == -1)
       {
         continue;
@@ -80,53 +82,46 @@ public class Map
       tiles[tilePosition.Item1, tilePosition.Item2] = new Tile(
         _renderManager,
         "Maps/" + decorationTilesFilePaths[rand.Next(decorationTilesFilePaths.Length)],
-        new Vector2(tilePosition.Item1 * tileSize, tilePosition.Item2 * tileSize),
+        new Vector2(tilePosition.Item1 * TileSize, tilePosition.Item2 * TileSize),
         TileType.DECORATION
       );
+      visited[tilePosition.Item1, tilePosition.Item2] = true;
     }
 
-    for (int x = 0; x < mapDimensionsTiles.X; x++)
+    for (int x = 0; x < MapDimensionsTiles.X; x++)
     {
-      for (int y = 0; y < mapDimensionsTiles.Y; y++)
+      for (int y = 0; y < MapDimensionsTiles.Y; y++)
       {
-        if (tiles[x, y] == null)
+        if (!visited[x, y])
         {
           tiles[x, y] = new Tile(
             _renderManager,
             "Maps/" + baseTilesFilePaths[rand.Next(baseTilesFilePaths.Length)],
-            new Vector2(x * tileSize, y * tileSize),
+            new Vector2(x * TileSize, y * TileSize),
             TileType.BASE
           );
+          visited[x, y] = true;
         }
       }
     }
   }
 
   // Fetch a random tile position, handle collisions if a tile has already been placed
-  private Tuple<int, int> getTilePosition(Random _rand, int retryCount = 0)
+  private Tuple<int, int> getTilePosition(bool[,] _visited, Random _rand, int retryCount = 0)
   {
     if (retryCount == 3)
     {
       return new Tuple<int, int>(-1, -1);
     }
 
-    int x = _rand.Next(mapDimensionsTiles.X),
-      y = _rand.Next(mapDimensionsTiles.Y);
+    int x = _rand.Next(MapDimensionsTiles.X),
+      y = _rand.Next(MapDimensionsTiles.Y);
 
-    if (tiles[x, y] == null)
+    if (!_visited[x, y])
     {
       return new Tuple<int, int>(x, y);
     }
 
-    return getTilePosition(_rand, retryCount + 1);
+    return getTilePosition(_visited, _rand, retryCount + 1);
   }
-
-  // --- GET --- //
-  public Tile[] GetCollisionTiles() => collisionTiles;
-
-  public Point GetMapDimensionsPixels() => mapDimensionsPixels;
-
-  public Point GetMapDimensionsTiles() => mapDimensionsTiles;
-
-  public int GetTileSize() => tileSize;
 }

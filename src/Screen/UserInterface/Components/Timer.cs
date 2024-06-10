@@ -8,14 +8,13 @@ public class Timer : UIComponent
   private float time;
   private string text;
   private readonly Sprite timerBackground;
-
   private Vector2 textDrawPos;
 
-  public Timer(RenderManager _renderManager, Vector2 _origin, int _verticalOffset, int _horizontalOffset)
-    : base(_renderManager, _origin, _verticalOffset, _horizontalOffset)
+  public Timer(RenderManager _renderManager, Vector2 _position, int _verticalOffset, int _horizontalOffset)
+    : base(_renderManager, _position, _verticalOffset, _horizontalOffset)
   {
     time = 0;
-    timerBackground = new Sprite(_renderManager, "UI/timer_background", _origin);
+    timerBackground = new Sprite(_renderManager, "UI/timer_background", _position);
     text = FormatText();
   }
 
@@ -34,7 +33,7 @@ public class Timer : UIComponent
 
   public void Draw(RenderManager _renderManager)
   {
-    timerBackground.Draw(_renderManager, position);
+    timerBackground.Draw(_renderManager);
     _renderManager.DrawString(text, textDrawPos, Color.White);
   }
 }

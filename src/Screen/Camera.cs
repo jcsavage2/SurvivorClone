@@ -8,17 +8,17 @@ public class Camera
 
   public void Update(RenderManager _renderManager, Player _player, Map _map)
   {
-    Vector3 playerPosition = new Vector3(_player.GetCenter().X, _player.GetCenter().Y, 0);
-    Point renderSize = _renderManager.GetRenderSize();
+    Vector3 playerPosition = new Vector3(_player.Shape.Center.X, _player.Shape.Center.Y, 0);
+    Point renderSize = _renderManager.RenderSize;
 
     int offset = 0;
     if (Debug.IsActive())
       offset = 10;
 
     int minX = renderSize.X / 2 - offset;
-    int maxX = _map.GetMapDimensionsPixels().X - renderSize.X / 2 + offset;
+    int maxX = _map.MapDimensionsPixels.X - renderSize.X / 2 + offset;
     int minY = renderSize.Y / 2 - offset;
-    int maxY = _map.GetMapDimensionsPixels().Y - renderSize.Y / 2 + offset;
+    int maxY = _map.MapDimensionsPixels.Y - renderSize.Y / 2 + offset;
 
     // Clamp the camera center to the borders of the map
     float clampedX = MathHelper.Clamp(playerPosition.X, minX, maxX);

@@ -7,12 +7,9 @@ namespace SurvivorClone;
 
 public class Player : AnimatedSprite
 {
-  // State
-  private float health { get; set; }
-  private List<Projectile> projectiles { get; set; }
+  public float Health { get; set; }
+  public List<Projectile> Projectiles { get; set; }
   private float timeSinceLastFire { get; set; }
-
-  // Constants
   public const float BASE_SPEED = 150f;
   public const float FIRE_RATE = 1f;
   public const float MAX_HEALTH = 100f;
@@ -27,16 +24,17 @@ public class Player : AnimatedSprite
     RenderManager _renderManager,
     string _texturePath,
     Vector2 _position,
+    Geometry.CollisionTypes _collisionType,
     int _totalStates,
     int _totalFrames,
     int _initialState,
-    Point _tileSize,
+    Point _size,
     float _frameDelay = .125f
   )
-    : base(_renderManager, _texturePath, _position, _totalStates, _totalFrames, _initialState, _tileSize, _frameDelay)
+    : base(_renderManager, _texturePath, _position, _collisionType, _totalStates, _totalFrames, _initialState, _size, _frameDelay)
   {
-    health = MAX_HEALTH;
-    projectiles = new List<Projectile>();
+    Health = MAX_HEALTH;
+    Projectiles = new List<Projectile>();
   }
 
   public void Update(RenderManager _renderManager, EnemyManager _enemyManager, GameTime gameTime, Map _map)
@@ -45,17 +43,17 @@ public class Player : AnimatedSprite
     float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
     Vector2 velocity = handleMovement(elapsedTime);
-    Vector2 newPos = handleTileCollision(_map, GetNewPosition(velocity));
+    Vector2 newPos = handleTileCollision(_map, Shape.Position + velocity);
 
     handleAttack(_renderManager, elapsedTime, _enemyManager, _map);
 
-    SetPosition(newPos);
+    Shape.Position = newPos;
   }
 
   public override void Draw(RenderManager _renderManager)
   {
     base.Draw(_renderManager);
-    foreach (Projectile projectile in projectiles)
+    foreach (Projectile projectile in Projectiles)
     {
       projectile.Draw(_renderManager);
     }
@@ -70,15 +68,15 @@ public class Player : AnimatedSprite
     if (timeSinceLastFire >= FIRE_RATE)
     {
       timeSinceLastFire = 0;
-      projectiles.Add(new Projectile(_renderManager, "Sprites/base_projectile", GetCenterLeft(), Projectile.Origin.LEFT, Projectile.Direction.LEFT, 1, 100));
+      Projectiles.Add(new Projectile(_renderManager, "Sprites/base_projectile", Shape.CenterLeft, Geometry.CollisionTypes.RECTANGLE, Projectile.DirectionType.LEFT, 1, 100));
     }
 
     List<Projectile> deadProjectiles = new List<Projectile>();
-    List<Enemy> spawnedEnemies = _enemyManager.GetSpawnedEnemies();
-    foreach (Projectile projectile in projectiles)
+    List<Enemy> spawnedEnemies = _enemyManager.SpawnedEnemies;
+    foreach (Projectile projectile in Projectiles)
     {
       projectile.Update(_renderManager, elapsedTime, _map, spawnedEnemies);
-      if (projectile.IsDead())
+      if (projectile.IsDead)
       {
         deadProjectiles.Add(projectile);
       }
@@ -86,50 +84,47 @@ public class Player : AnimatedSprite
 
     foreach (Projectile projectile in deadProjectiles)
     {
-      projectiles.Remove(projectile);
+      Projectiles.Remove(projectile);
     }
   }
 
   // Returns an updated position based on collision with map tiles
-  private Vector2 handleTileCollision(Map _map, Vector2 _pos)
+  private Vector2 handleTileCollision(Map _map, Vector2 _newPos)
   {
     // Handle collision with map tiles
-    Rectangle newPlayerRect = GetBoundingBox(_pos),
-      oldPlayerRect = GetBoundingBox();
-    Tile[] tiles = _map.GetCollisionTiles();
+    Rectangle newPlayerRect = new Rectangle(_newPos, Shape.Size);
 
-    tiles
-      .Where(tile => tile.GetBoundingBox().Intersects(newPlayerRect))
+    _map.CollisionTiles
+      .Where(tile => tile.Intersects(newPlayerRect))
       .ToList()
       .ForEach(tile =>
       {
-        Rectangle tileRect = tile.GetBoundingBox();
         // Check if player is above or below the tile to determine which axis to correct
-        if (oldPlayerRect.Bottom <= tileRect.Top || oldPlayerRect.Top >= tileRect.Bottom)
+        if (Shape.Bottom <= tile.Shape.Top || Shape.Top >= tile.Shape.Bottom)
         {
-          if (newPlayerRect.Bottom > tileRect.Top && newPlayerRect.Top < tileRect.Top)
+          if (newPlayerRect.Bottom > tile.Shape.Top && newPlayerRect.Top < tile.Shape.Top)
           {
-            _pos.Y = tileRect.Top - newPlayerRect.Height;
+            _newPos.Y = tile.Shape.Top - newPlayerRect.Height;
           }
-          else if (newPlayerRect.Top < tileRect.Bottom && newPlayerRect.Bottom > tileRect.Bottom)
+          else if (newPlayerRect.Top < tile.Shape.Bottom && newPlayerRect.Bottom > tile.Shape.Bottom)
           {
-            _pos.Y = tileRect.Bottom;
+            _newPos.Y = tile.Shape.Bottom;
           }
         }
         else
         {
-          if (newPlayerRect.Right > tileRect.Left && newPlayerRect.Left < tileRect.Left)
+          if (newPlayerRect.Right > tile.Shape.Left && newPlayerRect.Left < tile.Shape.Left)
           {
-            _pos.X = tileRect.Left - newPlayerRect.Width;
+            _newPos.X = tile.Shape.Left - newPlayerRect.Width;
           }
-          else if (newPlayerRect.Left < tileRect.Right && newPlayerRect.Right > tileRect.Right)
+          else if (newPlayerRect.Left < tile.Shape.Right && newPlayerRect.Right > tile.Shape.Right)
           {
-            _pos.X = tileRect.Right;
+            _newPos.X = tile.Shape.Right;
           }
         }
       });
 
-    return _pos;
+    return _newPos;
   }
 
   // Calculates player velocity based on key input
@@ -172,11 +167,11 @@ public class Player : AnimatedSprite
       velocity.X = playerSpeed;
     }
 
-    if (velocity.X > 0 && currentState != (int)PlayerStates.RIGHT)
+    if (velocity.X > 0 && CurrentState != (int)PlayerStates.RIGHT)
     {
       SetState((int)PlayerStates.RIGHT);
     }
-    else if (velocity.X < 0 && currentState != (int)PlayerStates.LEFT)
+    else if (velocity.X < 0 && CurrentState != (int)PlayerStates.LEFT)
     {
       SetState((int)PlayerStates.LEFT);
     }
@@ -185,8 +180,5 @@ public class Player : AnimatedSprite
   }
 
   // --- SET --- //
-  public void TakeDamage(float _damage) => health -= _damage;
-
-  // --- GET --- //
-  public float GetHealth() => health;
+  public void TakeDamage(float _damage) => Health -= _damage;
 }

@@ -5,12 +5,18 @@ namespace SurvivorClone;
 
 public class Enemy : AnimatedSprite
 {
-  // State
-  private float health { get; set; }
-  private float damage { get; set; }
-  private bool isDead { get; set; }
 
-  // Constants
+  public float Health { get; set; }
+  public float Damage { get; set; }
+  public bool IsDead { get; set; }
+  public bool IsDying
+  {
+    get
+    {
+      return CurrentState == (int)EnemyStates.DYING;
+    }
+  }
+
   public const float MAX_HEALTH = 10f;
 
   public enum EnemyStates
@@ -28,6 +34,7 @@ public class Enemy : AnimatedSprite
     RenderManager _renderManager,
     string _texturePath,
     Vector2 _position,
+    Geometry.CollisionTypes _collisionShape,
     int _totalStates,
     int _totalFrames,
     int _initialState,
@@ -35,31 +42,31 @@ public class Enemy : AnimatedSprite
     float _frameDelay = .125f,
     float _damage = 1f
   )
-    : base(_renderManager, _texturePath, _position, _totalStates, _totalFrames, _initialState, _tileSize, _frameDelay)
+    : base(_renderManager, _texturePath, _position, _collisionShape, _totalStates, _totalFrames, _initialState, _tileSize, _frameDelay)
   {
-    health = MAX_HEALTH;
-    damage = _damage;
-    isDead = false;
+    Health = MAX_HEALTH;
+    Damage = _damage;
+    IsDead = false;
   }
 
   public void Update(RenderManager _renderManager, GameTime gameTime, Map _map, Player _player)
   {
-    if (IsDead()) return;
+    if (IsDead) return;
     // Animation
     base.Update(gameTime);
 
-    int newState = currentState;
-    if (health <= 0)
+    int newState = CurrentState;
+    if (Health <= 0)
     {
       newState = (int)EnemyStates.DYING;
     }
 
-    if (IsDying())
+    if (IsDying)
     {
       // Once dying animation is complete, enemy is dead
-      if (currentFrame >= totalFrames - 1)
+      if (CurrentFrame >= totalFrames - 1)
       {
-        isDead = true;
+        IsDead = true;
       }
       return;
     }
@@ -69,7 +76,7 @@ public class Enemy : AnimatedSprite
 
     handlePlayerCollision(_player);
 
-    if (newState != currentState)
+    if (newState != CurrentState)
     {
       SetState(newState);
     }
@@ -78,36 +85,36 @@ public class Enemy : AnimatedSprite
   // --- HELPERS --- //
   private void handleMovement(Player _player, float elapsedTime)
   {
-    Vector2 playerCenter = _player.GetCenter(), center = GetCenter();
+    Vector2 playerCenter = _player.Shape.Center;
     float enemySpeed = BASE_SPEED * elapsedTime;
     Vector2 velocity = Vector2.Zero;
 
     // Move towards player
-    if (playerCenter.X < center.X)
+    if (playerCenter.X < Shape.Center.X)
     {
       velocity.X -= enemySpeed;
     }
-    else if (playerCenter.X > center.X)
+    else if (playerCenter.X > Shape.Center.X)
     {
       velocity.X += enemySpeed;
     }
 
-    if (playerCenter.Y < position.Y)
+    if (playerCenter.Y < Shape.Position.Y)
     {
       velocity.Y -= enemySpeed;
     }
-    else if (playerCenter.Y > position.Y)
+    else if (playerCenter.Y > Shape.Position.Y)
     {
       velocity.Y += enemySpeed;
     }
 
     // Change animation state depending on movement vector
-    int newState = currentState;
-    if (velocity.Y > 0 && Math.Abs(playerCenter.X - center.X) < 75)
+    int newState = CurrentState;
+    if (velocity.Y > 0 && Math.Abs(playerCenter.X - Shape.Center.X) < 75)
     {
       newState = (int)EnemyStates.DOWN;
     }
-    else if (velocity.Y < 0 && Math.Abs(playerCenter.X - center.X) < 75)
+    else if (velocity.Y < 0 && Math.Abs(playerCenter.X - Shape.Center.X) < 75)
     {
       newState = (int)EnemyStates.UP;
     }
@@ -120,29 +127,22 @@ public class Enemy : AnimatedSprite
       newState = (int)EnemyStates.LEFT;
     }
 
-    if (newState != currentState && !_player.GetBoundingBox().Intersects(GetBoundingBox()))
+    if (newState != CurrentState && !_player.Intersects(this))
     {
       SetState(newState);
     }
 
-    SetPosition(position + velocity);
+    Shape.Position += velocity;
   }
 
   private void handlePlayerCollision(Player _player)
   {
-    if (_player.GetBoundingBox().Intersects(GetBoundingBox()))
+    if (_player.Intersects(this))
     {
-      _player.TakeDamage(damage);
+      _player.TakeDamage(Damage);
     }
   }
 
   // --- SET --- //
-  public void TakeDamage(float _damage) => health -= _damage;
-
-  // --- GET --- //
-  public float GetHealth() => health;
-
-  public float GetDamage() => damage;
-  public bool IsDead() => isDead;
-  public bool IsDying() => currentState == (int)EnemyStates.DYING;
+  public void TakeDamage(float _damage) => Health -= _damage;
 }

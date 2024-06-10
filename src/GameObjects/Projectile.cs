@@ -5,14 +5,12 @@ namespace SurvivorClone;
 
 public class Projectile : Sprite
 {
-  // State
-  private readonly Direction direction;
-  private float damage { get; set; }
-  private bool isDead { get; set; }
+  public DirectionType Direction { get; set; }
+  public float Damage { get; set; }
+  public bool IsDead { get; set; }
   private int durability { get; set; }
 
-
-  public enum Direction
+  public enum DirectionType
   {
     LEFT = 1,
     RIGHT = 2,
@@ -20,52 +18,50 @@ public class Projectile : Sprite
     DOWN = 4,
   }
 
-  public enum Origin { TOP = 1, BOTTOM = 2, LEFT = 3, RIGHT = 4 }
-
   public const float BASE_SPEED = 150f;
 
   public Projectile(
     RenderManager _renderManager,
     string _texturePath,
     Vector2 _position,
-    Origin _origin,
-    Direction _direction,
+    Geometry.CollisionTypes _collisionType,
+    DirectionType _direction,
     int _durability,
     float _damage
   )
-    : base(_renderManager, _texturePath, _position)
+    : base(_renderManager, _texturePath, _position, _collisionType)
   {
-    isDead = false;
-    direction = _direction;
+    IsDead = false;
+    Direction = _direction;
     durability = _durability;
-    damage = _damage;
+    Damage = _damage;
   }
 
   public void Update(RenderManager _renderManager, float _elapsedTime, Map _map, List<Enemy> _enemies)
   {
     // Move projectile
     Vector2 velocity = getVelocity(_elapsedTime);
-    SetPosition(GetNewPosition(velocity));
+    Shape.Position += velocity;
 
     // Check for collision with enemies and damage accordingly
     foreach (Enemy enemy in _enemies)
     {
-      if (enemy.GetBoundingBox().Intersects(GetBoundingBox()))
+      if (enemy.Intersects(this))
       {
-        enemy.TakeDamage(damage);
+        enemy.TakeDamage(Damage);
         --durability;
         if (durability <= 0)
         {
-          isDead = true;
+          IsDead = true;
           break;
         }
       }
     }
 
     // Check for collision with map borders
-    if (position.X < 0 || position.X > _map.GetMapDimensionsPixels().X || position.Y < 0 || position.Y > _map.GetMapDimensionsPixels().Y)
+    if (Shape.Position.X < 0 || Shape.Position.X > _map.MapDimensionsPixels.X || Shape.Position.Y < 0 || Shape.Position.Y > _map.MapDimensionsPixels.Y)
     {
-      isDead = true;
+      IsDead = true;
     }
   }
 
@@ -75,27 +71,22 @@ public class Projectile : Sprite
     Vector2 velocity = Vector2.Zero;
     float speed = BASE_SPEED * _elapsedTime;
 
-    switch (direction)
+    switch (Direction)
     {
-      case Direction.LEFT:
+      case DirectionType.LEFT:
         velocity.X = -speed;
         break;
-      case Direction.RIGHT:
+      case DirectionType.RIGHT:
         velocity.X = speed;
         break;
-      case Direction.UP:
+      case DirectionType.UP:
         velocity.Y = -speed;
         break;
-      case Direction.DOWN:
+      case DirectionType.DOWN:
         velocity.Y = speed;
         break;
     }
 
     return velocity;
   }
-
-  // --- GET --- //
-  public bool IsDead() => isDead;
-
-  // --- HELPERS --- //
 }

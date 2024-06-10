@@ -6,13 +6,12 @@ namespace SurvivorClone;
 
 public class AnimatedSprite : Sprite
 {
-  // State management
-  protected int currentState;
+  public int CurrentState { get; set; }
+  public bool IsActive { get; set; }
+  public int CurrentFrame { get; set; }
+
   protected readonly int totalStates;
 
-  // Animation management
-  protected bool isActive;
-  protected int currentFrame;
   protected readonly int totalFrames;
   protected readonly float frameDelay;
   protected float frameDelayCounter;
@@ -23,28 +22,29 @@ public class AnimatedSprite : Sprite
     RenderManager _renderManager,
     string _texturePath,
     Vector2 _position,
+    Geometry.CollisionTypes _collisionType,
     int _totalStates,
     int _totalFrames,
     int _initialState,
     Point _size,
     float _frameDelay = .1f
   )
-    : base(_renderManager, _texturePath, _position)
+    : base(_renderManager, _texturePath, _position, _collisionType)
   {
-    currentState = _initialState;
-    currentFrame = 0;
+    CurrentState = _initialState;
+    CurrentFrame = 0;
     totalStates = _totalStates;
     totalFrames = _totalFrames;
-    size = _size;
+    Shape = Shape.CreateShape(_position, _size, _collisionType);
     frameDelay = _frameDelay;
     frameDelayCounter = 0;
-    isActive = true;
-    spriteTexture = _renderManager.GetContent().Load<Texture2D>(_texturePath);
+    IsActive = true;
+    spriteTexture = _renderManager.Content.Load<Texture2D>(_texturePath);
   }
 
   public virtual void Update(GameTime gameTime)
   {
-    if (!isActive)
+    if (!IsActive)
     {
       return;
     }
@@ -54,31 +54,31 @@ public class AnimatedSprite : Sprite
     if (frameDelayCounter >= frameDelay)
     {
       frameDelayCounter = 0;
-      currentFrame++;
+      CurrentFrame++;
 
-      if (currentFrame >= totalFrames)
+      if (CurrentFrame >= totalFrames)
       {
-        currentFrame = 0;
+        CurrentFrame = 0;
       }
     }
   }
 
   public void StartAnimation()
   {
-    isActive = true;
+    IsActive = true;
   }
 
   public void StopAnimation()
   {
-    isActive = false;
+    IsActive = false;
   }
 
   public override void Draw(RenderManager _renderManager)
   {
     _renderManager.DrawTexture(
       spriteTexture,
-      position,
-      new Rectangle(getTilePosition(currentFrame, size.X), getTilePosition(currentState, size.Y), size.X, size.Y)
+      Shape.Position,
+      new Rectangle(getTilePosition(CurrentFrame, Shape.Width), getTilePosition(CurrentState, Shape.Height), Shape.Width, Shape.Height)
     );
   }
 
@@ -93,27 +93,14 @@ public class AnimatedSprite : Sprite
 
   private void resetAnimation()
   {
-    currentFrame = 0;
+    CurrentFrame = 0;
     frameDelayCounter = 0;
   }
 
   // --- SET --- //
   public void SetState(int newState)
   {
-    currentState = Math.Clamp(newState, 0, totalStates - 1);
+    CurrentState = Math.Clamp(newState, 0, totalStates - 1);
     resetAnimation();
   }
-
-  // --- GET --- //
-
-  public Vector2 GetCenterLeft() => new Vector2(position.X, position.Y + size.Y / 2);
-  public Vector2 GetCenterRight() => new Vector2(position.X + size.X, position.Y + size.Y / 2);
-  public Vector2 GetCenterTop() => new Vector2(position.X + size.X / 2, position.Y);
-  public Vector2 GetCenterBottom() => new Vector2(position.X + size.X / 2, position.Y + size.Y);
-
-  public int GetCurrentState() => currentState;
-
-  public int GetCurrentFrame() => currentFrame;
-
-  public bool IsActive() => isActive;
 }

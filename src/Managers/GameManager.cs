@@ -41,7 +41,7 @@ public class GameManager : Game
       map = new Map(renderManager, 30, 64);
 
       // Load entities
-      player = new Player(renderManager, "Sprites/player", new Vector2(200, 200), 2, 11, (int)Player.PlayerStates.LEFT, new Point(64, 64));
+      player = new Player(renderManager, "Sprites/player", new Vector2(200, 200), Geometry.CollisionTypes.RECTANGLE, 2, 11, (int)Player.PlayerStates.LEFT, new Point(64, 64));
       enemyManager = new EnemyManager(1, 2, "Sprites/flying_enemy");
     }
     catch (Exception ex)

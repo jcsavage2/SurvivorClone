@@ -5,8 +5,8 @@ namespace SurvivorClone;
 
 public class EnemyManager
 {
-  private readonly List<Enemy> spawnedEnemies;
-  private readonly List<AnimatedPickup> spawnedPickups;
+  public List<Enemy> SpawnedEnemies { get; set; }
+  public List<AnimatedPickup> SpawnedPickups { get; set; }
   private readonly int maxEnemies;
   private readonly float spawnDelay;
   private readonly string texturePath;
@@ -18,8 +18,8 @@ public class EnemyManager
     maxEnemies = _maxEnemies;
     spawnDelay = _spawnDelay;
     texturePath = _texturePath;
-    spawnedEnemies = new List<Enemy>();
-    spawnedPickups = new List<AnimatedPickup>();
+    SpawnedEnemies = new List<Enemy>();
+    SpawnedPickups = new List<AnimatedPickup>();
     timeSinceLastSpawn = 0;
   }
 
@@ -28,19 +28,19 @@ public class EnemyManager
     float elapsedTime = (float)_gameTime.ElapsedGameTime.TotalSeconds;
     timeSinceLastSpawn += elapsedTime;
 
-    if (timeSinceLastSpawn >= spawnDelay && spawnedEnemies.Count < maxEnemies)
+    if (timeSinceLastSpawn >= spawnDelay && SpawnedEnemies.Count < maxEnemies)
     {
-      spawnedEnemies.Add(loadEnemy(_renderManager));
+      SpawnedEnemies.Add(loadEnemy(_renderManager));
       timeSinceLastSpawn = 0;
     }
 
     List<Enemy> deadEnemies = new List<Enemy>();
-    foreach (Enemy enemy in spawnedEnemies)
+    foreach (Enemy enemy in SpawnedEnemies)
     {
-      if (enemy.IsDead())
+      if (enemy.IsDead)
       {
         deadEnemies.Add(enemy);
-        dropExpPickup(_renderManager, enemy);
+        SpawnedPickups.Add(loadExpPickup(_renderManager, enemy));
         continue;
       }
       enemy.Update(_renderManager, _gameTime, _map, _player);
@@ -48,14 +48,14 @@ public class EnemyManager
 
     foreach (Enemy enemy in deadEnemies)
     {
-      spawnedEnemies.Remove(enemy);
+      SpawnedEnemies.Remove(enemy);
     }
 
-    foreach (AnimatedPickup pickup in spawnedPickups)
+    foreach (AnimatedPickup pickup in SpawnedPickups)
     {
-      if (pickup.IsDead())
+      if (pickup.IsDead)
       {
-        spawnedPickups.Remove(pickup);
+        SpawnedPickups.Remove(pickup);
         continue;
       }
       pickup.Update(_renderManager, _gameTime);
@@ -64,12 +64,12 @@ public class EnemyManager
 
   public void Draw(RenderManager _renderManager)
   {
-    foreach (Enemy enemy in spawnedEnemies)
+    foreach (Enemy enemy in SpawnedEnemies)
     {
       enemy.Draw(_renderManager);
     }
 
-    foreach (AnimatedPickup pickup in spawnedPickups)
+    foreach (AnimatedPickup pickup in SpawnedPickups)
     {
       pickup.Draw(_renderManager);
     }
@@ -80,14 +80,11 @@ public class EnemyManager
   // Creates a new enemy and loads its content
   private Enemy loadEnemy(RenderManager _renderManager)
   {
-    return new Enemy(_renderManager, texturePath, Vector2.Zero, 4, 6, (int)Enemy.EnemyStates.RIGHT, new Point(48, 48));
+    return new Enemy(_renderManager, texturePath, Vector2.Zero, Geometry.CollisionTypes.RECTANGLE, 4, 6, (int)Enemy.EnemyStates.RIGHT, new Point(48, 48));
   }
 
-  private void dropExpPickup(RenderManager _renderManager, Enemy _enemy)
+  private AnimatedPickup loadExpPickup(RenderManager _renderManager, Enemy _enemy)
   {
-    spawnedPickups.Add(new AnimatedPickup(_renderManager, "Sprites/exp_pickup", _enemy.GetCenter(), 1, 3, (int)AnimatedPickup.PickupStates.IDLE, new Point(16, 16)));
+    return new AnimatedPickup(_renderManager, "Sprites/exp_pickup", _enemy.Shape.Center, Geometry.CollisionTypes.CIRCLE, 1, 3, (int)AnimatedPickup.PickupStates.IDLE, new Point(16, 16));
   }
-
-  // -- GET -- //
-  public List<Enemy> GetSpawnedEnemies() => spawnedEnemies;
 }

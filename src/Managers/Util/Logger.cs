@@ -5,11 +5,11 @@ namespace SurvivorClone;
 
 public class Logger
 {
-  private readonly NLog.Logger nLog;
+  private readonly NLog.Logger log;
 
   public Logger()
   {
-    nLog = NLog.LogManager.GetCurrentClassLogger();
+    log = NLog.LogManager.GetCurrentClassLogger();
     string time = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
     string fileName = $"Debug/log-{time}.txt";
 
@@ -26,16 +26,16 @@ public class Logger
 
   public void File(string message)
   {
-    nLog.Debug(message);
+    log.Debug(message);
   }
 
   public void Console(string message)
   {
-    nLog.Info(message);
+    log.Info(message);
   }
 
   public void Error(Exception ex)
   {
-    nLog.Error(ex.Message);
+    log.Error(ex.Message);
   }
 }

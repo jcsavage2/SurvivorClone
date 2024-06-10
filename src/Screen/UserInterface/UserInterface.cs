@@ -10,12 +10,12 @@ namespace SurvivorClone
     public UserInterface(RenderManager _renderManager)
     {
       healthBar = new ProgressBar(_renderManager, new Vector2(0, 0), 5, 5);
-      timer = new Timer(_renderManager, new Vector2(_renderManager.GetRenderSize().X, 0), 5, -160);
+      timer = new Timer(_renderManager, new Vector2(_renderManager.RenderSize.X, 0), 5, -160);
     }
 
     public void Update(RenderManager _renderManager, GameTime gameTime, Player player)
     {
-      float percentRemainingHealth = player.GetHealth() / Player.MAX_HEALTH;
+      float percentRemainingHealth = player.Health / Player.MAX_HEALTH;
       healthBar.Update(_renderManager, percentRemainingHealth);
       timer.Update(_renderManager, gameTime);
     }
